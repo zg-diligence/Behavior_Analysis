@@ -3,7 +3,6 @@ import re, codecs
 import multiprocessing
 from bs4 import BeautifulSoup
 from urllib.request import urlopen, quote
-
 DEBUG = True
 
 class Preprocess:
