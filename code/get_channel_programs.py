@@ -223,12 +223,12 @@ class Preprocess(object):
         with codecs.open(file_path, 'r', encoding='utf8') as fr:
             # remove punctuations
             punctuations = env_punc + chs_punc
-            channels = [re.sub('[%s]' % punctuations, ' ', line.strip()) for line in fr]
+            channels = [re.sub('[%s]' % punctuations, '', line.strip()) for line in fr]
 
             # remove channels including chinese garbled
             channels = [channel for channel in channels if not re.search('[^(\w+\-)]', channel)]
 
-            # remove error channels
+            # remove channels whose name is made up with alphabet
             channels = [channel for channel in channels if not re.match('^[a-zA-Z]+$', channel)]
 
             # remove Dolby、HD、高清 channels
@@ -239,10 +239,11 @@ class Preprocess(object):
                 if channel[-2:] != '高清':
                     tmp_channels.append(channel)
                 elif channel[:-2] not in tmp_channels:
-                    tmp_channels.append(channel)
+                    tmp_channels.append(channel[:-2])
 
-            with codecs.open(TMP_PATH + '/normalized_channels.txt', 'w', encoding='utf') as fw:
-                fw.write('\n'.join(sorted(set(channels))))
+            # with codecs.open(TMP_PATH + '/normalized_channels.txt', 'w', encoding='utf') as fw:
+            with codecs.open(TMP_PATH + '/2normalized_channels.txt', 'w', encoding='utf') as fw:
+                fw.write('\n'.join(sorted(set(tmp_channels))))
 
 if __name__ == "__main__":
     handler = Preprocess()
@@ -251,3 +252,4 @@ if __name__ == "__main__":
     # handler.get_all_channels_programs()
     # handler.normalize_programs(TMP_PATH + '/all_unique_programs.txt')
     # handler.normalize_channels(TMP_PATH + '/all_unique_channels.txt')
+    handler.normalize_channels(TMP_PATH + '/channels_1.txt')
