@@ -81,6 +81,7 @@ class Preprocess(object):
                         event_num = line.strip().split('|')[1]
                         if event_num in self.events:
                             res = self.extract_channel_program(err_fw, fr_path, line)
+                            if res is None: continue
                             channel_program_res[self.events.index(event_num)].append(res)
                         if event_num in ['21', '5']:
                             fw.write(line)
@@ -100,7 +101,8 @@ class Preprocess(object):
         :param process: number of the process
         """
 
-        src_catelogue = ROOT_CATELOGUE + "/origin_data"
+        # src_catelogue = ROOT_CATELOGUE + "/origin_data"
+        src_catelogue =  "/media/gzhang/Others/original_data"
         des_catelogue = ROOT_CATELOGUE + "/extract_data"
 
         if not os.path.exists(EXTRACT_ITEM_ERR):
@@ -114,7 +116,7 @@ class Preprocess(object):
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
         pool = multiprocessing.Pool(process)
-        src_folders = os.listdir(src_catelogue)
+        src_folders = sorted(os.listdir(src_catelogue))
         for folder in src_folders:
             src_folder = src_catelogue + "/" + folder
             des_folder = des_catelogue + "/" + folder
@@ -124,6 +126,17 @@ class Preprocess(object):
             pool.apply_async(self.extract_events, (src_folder, des_folder))
         pool.close()
         pool.join()
+
+        if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
+    def cat_sort_uniq_lines(self):
+        if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
+        os.chdir(os.getcwd() + '/tmp_result/extract_channel_program')
+        for event in self.events:
+            if DEBUG: print('start event', event)
+            command = 'cat *_' + event + '.txt |sort|uniq > uniq_' + event + '.txt'
+            os.system(command)
 
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
@@ -157,12 +170,13 @@ class Preprocess(object):
         for file_name in all_files:
             fr_path = EXTRACT_CHANNEL_PROGRAM + '/' + file_name
             with codecs.open(fr_path, 'r', encoding='utf8') as fr:
-                if file_name[-6:-4] == '96':
+                if file_name == 'uniq_96.txt':
                     programs += [line.strip() for line in set(fr.readlines()) if line.strip()]
                 else:
                     res = self.get_channels_programs(fr_path)
                     channels += res[0]
                     programs += res[1]
+
         with codecs.open(TMP_PATH + '/all_unique_channels.txt', 'w', encoding='utf8') as fw:
             fw.write('\n'.join(sorted(set(channels))))
         with codecs.open(TMP_PATH + '/all_unique_programs.txt', 'w', encoding='utf8') as fw:
@@ -228,28 +242,30 @@ class Preprocess(object):
             # remove channels including chinese garbled
             channels = [channel for channel in channels if not re.search('[^(\w+\-)]', channel)]
 
-            # remove channels whose name is made up with alphabet
-            channels = [channel for channel in channels if not re.match('^[a-zA-Z]+$', channel)]
+            # remove channels whose name is purely made up with number
+            channels = [channel for channel in channels if not re.match('^[0-9]+$', channel)]
 
             # remove Dolby、HD、高清 channels
             channels = [channel for channel in channels if not re.search('(Dolby|HD)$', channel)]
             channels = sorted(list(set(channels)))
             tmp_channels = []
             for channel in channels:
-                if channel[-2:] != '高清':
-                    tmp_channels.append(channel)
-                elif channel[:-2] not in tmp_channels:
+                if len(channel) >= 6 and re.search('(高清|频道)$', channel):
                     tmp_channels.append(channel[:-2])
+                elif re.search('^NVOD', channel) and channel != 'NVOD4K':
+                    tmp_channels.append(channel[4:])
+                else:
+                    tmp_channels.append(channel)
 
-            # with codecs.open(TMP_PATH + '/normalized_channels.txt', 'w', encoding='utf') as fw:
-            with codecs.open(TMP_PATH + '/2normalized_channels.txt', 'w', encoding='utf') as fw:
+            with codecs.open(TMP_PATH + '/normalized_channels.txt', 'w', encoding='utf') as fw:
                 fw.write('\n'.join(sorted(set(tmp_channels))))
 
 if __name__ == "__main__":
     handler = Preprocess()
 
-    # handler.extract_all_events(3)
+    # handler.extract_all_events(3) # not allowed to execute again
+
+    # handler.cat_sort_uniq_lines()
     # handler.get_all_channels_programs()
     # handler.normalize_programs(TMP_PATH + '/all_unique_programs.txt')
-    # handler.normalize_channels(TMP_PATH + '/all_unique_channels.txt')
-    handler.normalize_channels(TMP_PATH + '/channels_1.txt')
+    handler.normalize_channels(TMP_PATH + '/all_unique_channels.txt')

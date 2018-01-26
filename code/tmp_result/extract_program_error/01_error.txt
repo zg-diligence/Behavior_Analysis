@@ -1,0 +1,459 @@
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|7|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|19|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|23|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|32|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|35|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|40|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|43|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|46|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|56|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|69|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|79|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501210616.dat|list index out of range|87|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|101|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|129|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|144|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|164|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|166|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|167|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|170|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|172|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|192|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|202|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|208|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|212|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|215|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|224|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|228|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|251|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501220616.dat|list index out of range|256|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501230616.dat|list index out of range|268|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501230616.dat|list index out of range|271|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server01_20160501230616.dat|list index out of range|276|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|29|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|34|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|38|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|61|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|65|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|67|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|94|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|163|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|165|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|168|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501213953.dat|list index out of range|175|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501223953.dat|list index out of range|204|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501223953.dat|list index out of range|205|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501223953.dat|list index out of range|213|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501223953.dat|list index out of range|217|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501223953.dat|list index out of range|242|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501223953.dat|list index out of range|258|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server02_20160501223953.dat|list index out of range|275|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|11|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|25|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|51|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|52|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|53|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|55|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|62|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|70|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|90|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|100|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|133|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|135|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|140|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|162|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|194|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501215932.dat|list index out of range|196|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501225932.dat|list index out of range|203|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501225932.dat|list index out of range|209|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501225932.dat|list index out of range|220|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501225932.dat|list index out of range|229|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501225932.dat|list index out of range|234|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server03_20160501225932.dat|list index out of range|257|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|9|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|10|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|17|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|37|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|42|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|45|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|50|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|64|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|66|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|74|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|76|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501210651.dat|list index out of range|85|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|103|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|109|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|118|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|136|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|147|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|177|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|191|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|195|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|218|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501220651.dat|list index out of range|247|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server04_20160501230651.dat|list index out of range|273|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|8|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|12|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|20|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|26|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|47|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|59|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|60|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|63|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|73|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|78|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|81|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|84|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|108|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|119|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501213159.dat|list index out of range|152|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501223159.dat|list index out of range|181|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501223159.dat|list index out of range|185|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501223159.dat|list index out of range|211|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501223159.dat|list index out of range|223|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server05_20160501223159.dat|list index out of range|241|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|18|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|27|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|31|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|44|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|48|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|75|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|77|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|83|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|86|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|88|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|91|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|93|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|98|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|124|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|138|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|169|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|173|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501214121.dat|list index out of range|176|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|189|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|221|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|225|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|236|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|238|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|239|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|244|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|245|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|253|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|259|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|260|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|263|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server07_20160501224121.dat|list index out of range|272|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|14|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|15|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|21|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|28|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|33|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|57|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|80|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|82|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|89|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|92|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|139|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|157|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501214946.dat|list index out of range|171|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|190|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|197|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|201|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|206|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|207|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|226|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|232|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|235|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|237|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|240|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|261|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|267|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server09_20160501224946.dat|list index out of range|269|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|13|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|22|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|30|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|39|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|95|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|96|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|97|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|128|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|151|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501215612.dat|list index out of range|174|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|198|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|199|7|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|210|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|219|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|222|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|227|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|231|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|246|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|248|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|254|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|255|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server10_20160501225612.dat|list index out of range|266|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501210911.dat|list index out of range|41|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501210911.dat|list index out of range|54|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501210911.dat|list index out of range|58|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501210911.dat|list index out of range|68|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501210911.dat|list index out of range|72|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501210911.dat|list index out of range|99|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|113|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|134|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|153|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|200|7|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|230|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|233|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|250|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|252|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server11_20160501220911.dat|list index out of range|274|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|16|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|24|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|36|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|49|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|71|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|102|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|114|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|123|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|137|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|145|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|146|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501214836.dat|list index out of range|158|97|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501224836.dat|list index out of range|214|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501224836.dat|list index out of range|216|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501224836.dat|list index out of range|243|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501224836.dat|list index out of range|249|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501224836.dat|list index out of range|262|21|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501224836.dat|list index out of range|264|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501224836.dat|list index out of range|265|6|rFSPyhHvmXhMDssFf|825010315363153|
+
+/media/gzhang/Others/original_data/01/Server12_20160501224836.dat|list index out of range|270|5|rFSPyhHvmXhMDssFf|825010315363153|
+
+
