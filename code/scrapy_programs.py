@@ -1,10 +1,11 @@
 import os
 import codecs
 from bs4 import BeautifulSoup
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 
 DEBUG = True
-SCRAPY_PATH = os.getcwd() + '/tmp_result/scrapy_programs'
+TMP_PATH = os.getcwd() + '/tmp_result'
+SCRAPY_PATH = TMP_PATH + '/scrapy_programs'
 
 class Scrapyer(object):
     def __init__(self):
@@ -12,19 +13,21 @@ class Scrapyer(object):
 
     def scrapy_aiqiyi_program(self, category_num, des_file):
         programs = []
-        for page in range(1, 31):
-            url = 'http://list.iqiyi.com/www/%d/-----------2011_2015--' \
-                  '11-%d-1-iqiyi--.html' % (category_num, page)
-            if DEBUG: print('enter', url)
+        years = ['2011_2015', '2000_2010']
+        for year in years:
+            for page in range(1, 31):
+                url = 'http://list.iqiyi.com/www/%d/-----------%s--' \
+                      '11-%d-1-iqiyi--.html' % (category_num, year, page)
+                if DEBUG: print('enter', url)
 
-            try:
-                html = urlopen(url)
-                bsObj = BeautifulSoup(html, 'html.parser')
-                ul = bsObj.find_all('ul', class_='site-piclist site-piclist-180236 site-piclist-auto')[0]
-                programs += [item.div.a['title'] for item in ul.find_all('li')]
-            except Exception as e:
-                print('page', page, 'error', e)
-                continue
+                try:
+                    html = urlopen(url)
+                    bsObj = BeautifulSoup(html, 'html.parser')
+                    ul = bsObj.find_all('ul', class_='site-piclist site-piclist-180236 site-piclist-auto')[0]
+                    programs += [item.div.a['title'] for item in ul.find_all('li')]
+                except Exception as e:
+                    print('page', page, 'error', e)
+                    continue
 
         with codecs.open(des_file, 'w', encoding='utf8') as fw:
             fw.write('\n'.join(sorted(set(programs))))
@@ -37,7 +40,7 @@ class Scrapyer(object):
 
     def scrapy_youku_program(self, category_num, des_file):
         programs = []
-        years = list(range(2011, 2016))
+        years = [1970, 1980, 1990, 2000] + list(range(2010, 2016))
         for year in years:
             url = 'http://list.youku.com/category/show/c_%d_r_%d_s_1_d_1_p_1.html?' \
                   'spm=a2h1n.8251845.0.0' % (category_num, year)
@@ -113,6 +116,34 @@ class Scrapyer(object):
             des_file_path = SCRAPY_PATH + '/腾讯_' + name_categories[name] + '.txt'
             self.scrapy_tencent_program(name, des_file_path)
 
+    def scrapy_xingchen_program(self, category_name, des_file):
+        headers = {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/'
+                  '537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
+
+        programs = []
+        for year in list(range(2001, 2016)):
+            for page in range(1, 11):
+                url = 'http://www.vodxc.com/%s-----%d----%d.html' % (category_name, year, page)
+                if DEBUG: print('enter', url)
+
+                try:
+                    html = urlopen(Request(url=url, headers=headers))
+                    html = html.read().decode('gbk')
+                    bsObj = BeautifulSoup(html, 'html.parser')
+                    ul = bsObj.find_all('ul', class_='show-list grid-mode fn-clear')[0]
+                    programs += [item.a['title'] for item in ul.find_all('li')]
+                except Exception as e:
+                    print('page', page, 'error', e)
+                    continue
+
+        with codecs.open(des_file, 'w', encoding='utf8') as fw:
+            fw.write('\n'.join(sorted(set(programs))))
+
+    def scrapy_programs_from_xingchen(self):
+        name_categories = {'TV/34': '电视剧', 'Movie/33':'电影'}
+        for name in name_categories.keys():
+            des_file_path = SCRAPY_PATH + '/星辰_' + name_categories[name] + '.txt'
+            self.scrapy_xingchen_program(name, des_file_path)
 
 if __name__ == '__main__':
     handler = Scrapyer()
@@ -121,5 +152,6 @@ if __name__ == '__main__':
         os.mkdir(SCRAPY_PATH)
 
     # handler.scrapy_programs_from_aiqiyi()
-    handler.scrapy_programs_from_youku()
+    # handler.scrapy_programs_from_youku()
     # handler.scrapy_programs_from_tencent()
+    # handler.scrapy_programs_from_xingchen()

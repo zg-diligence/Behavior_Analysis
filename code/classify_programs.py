@@ -1,12 +1,21 @@
+import os
 import re
 import codecs
 from string import punctuation as env_punc
 from zhon.hanzi import punctuation as chs_punc
-from basic_category import classified_channels
 
+from get_channel_programs import Preprocess
+from basic_category import classified_channels, sports_keywords
+
+DEBUG = True
+threshold = 4
+TMP_PATH = os.getcwd() + '/tmp_result'
+SCRAPY_PATH = TMP_PATH + '/scrapy_programs'
+EXTRACT_CHANNEL_PROGRAM = TMP_PATH + '/extract_channel_program'
 
 class Classify(object):
     def __init__(self):
+        self.handler = Preprocess()
         with codecs.open('BA_all_channels.txt', 'r', encoding='utf8') as fr:
             self.all_channels = [line.strip() for line in fr.readlines()]
 
@@ -110,7 +119,169 @@ class Classify(object):
             return '其它'
         # classify_program
 
+    def normalize_scrapy_programs(self):
+        """
+        merge and normalize scrapy_programs by category
+        :return:
+        """
+
+        os.chdir(SCRAPY_PATH)
+        for category in ['电视剧', '电影', '动漫']:
+            command = 'cat *_' + category + '.txt |sort|uniq > merge_scrapy_' + category + '.txt'
+            os.system(command)
+
+        for category in ['电视剧', '电影', '动漫']:
+            src_path = SCRAPY_PATH + '/merge_scrapy_' + category + '.txt'
+            des_path = SCRAPY_PATH + '/normalized_scrapy_' + category + '.txt'
+            self.handler.normalize_programs(src_path, des_path)
+
+    def get_reclassify_programs(self):
+        """
+        extract programms need to be reclassify
+        :return: reclassify_programs.txt, reclassify_channel_programs.txt
+        """
+
+        with codecs.open(SCRAPY_PATH + '/normalized_scrapy_电影.txt', 'r') as fr:
+            scrapy_movie_programs = set([line.strip() for line in fr.readlines()])
+        with codecs.open(SCRAPY_PATH + '/normalized_scrapy_电视剧.txt', 'r') as fr:
+            scrapy_tv_programs = set([line.strip() for line in fr.readlines()])
+        with codecs.open(SCRAPY_PATH + '/normalized_scrapy_动漫.txt', 'r') as fr:
+            scrapy_cartoon_programs = set([line.strip() for line in fr.readlines()])
+
+        classifier = Classify()
+        reclassify_programs = []
+        reclassify_channel_programs = []
+        all_files = sorted(os.listdir(EXTRACT_CHANNEL_PROGRAM))
+        for file_name in all_files:
+            if file_name == 'uniq_13.txt': continue
+            if DEBUG: print('enter', file_name)
+            fr_path = EXTRACT_CHANNEL_PROGRAM + '/' + file_name
+            with codecs.open(fr_path, 'r', encoding='utf8') as fr:
+                if file_name == 'uniq_96.txt':
+                    programs = [line.strip() for line in set(fr.readlines()) if line.strip()]
+                    for program in programs:
+                        # 音乐、电视剧、体育
+                        if re.match('^\d+-.*-.*$', program): continue
+                        if re.search('^电视剧|剧场', program): continue
+                        if re.search(sports_keywords, program): continue
+                        res = classifier.preprocess_program(program)
+                        if res: reclassify_programs.append(res)
+                else:
+                    for line in fr.readlines():
+                        tmp = line.strip()
+                        if not tmp: continue
+
+                        res = tmp.split('|')
+                        if len(res) != 2: continue
+                        channel, program = res[0], res[1]
+
+                        channel = classifier.preprocess_channel(channel)
+                        program = classifier.preprocess_program(program)
+
+                        if not program: continue
+                        if re.search('^电视剧|剧场', program): continue
+                        if re.search(sports_keywords, program): continue
+                        if not channel:
+                            reclassify_programs.append(program)
+                            continue
+
+                        category = classifier.classify_channel(channel, flag=False)
+                        if category == '再分类':
+                            reclassify_channel_programs.append(channel + '|' + program)
+                            reclassify_programs.append(program)
+                        else:
+                            reclassify_programs.append(program)
+
+        reclassify_programs = set(reclassify_programs)
+        print(len(reclassify_programs))
+        reclassify_programs -= scrapy_tv_programs
+        print(len(reclassify_programs))
+        reclassify_programs -= scrapy_movie_programs
+        print(len(reclassify_programs))
+        reclassify_programs -= scrapy_cartoon_programs
+        print(len(reclassify_programs))
+
+        regex = 'MV|金曲'
+        music_programs = [program for program in reclassify_programs if re.search(regex, program)]
+        reclassify_programs = [program for program in reclassify_programs if not re.search(regex, program)]
+        print(len(reclassify_programs))
+
+        regex = '|'.join([star.strip() for star in open(TMP_PATH + '/stars.txt', 'r').readlines()])
+        star_programs = [program for program in reclassify_programs if re.search(regex, program)]
+        reclassify_programs = [program for program in reclassify_programs if not re.search(regex, program)]
+        print(len(reclassify_programs))
+
+        with open(TMP_PATH + '/star_program.txt', 'w') as fw:
+            fw.write('\n'.join(star_programs))
+
+        with codecs.open(TMP_PATH + '/reclassify_programs.txt', 'w') as fw:
+                fw.write('\n'.join(sorted(set(reclassify_programs))))
+        with codecs.open(TMP_PATH + '/reclassify_channel_programs.txt', 'w') as fw:
+                fw.write('\n'.join(sorted(set(reclassify_channel_programs))))
+
+    def get_common_prefix(self, pre_str, cur_str, N=threshold):
+        if len(pre_str) < N or len(cur_str) < N:
+            return None
+
+        if cur_str[:N] == pre_str[:N]:
+            prefix = cur_str[:N]
+            index = N
+            max_index = min(len(cur_str), len(pre_str))
+            while index < max_index:
+                if cur_str[index] == pre_str[index]:
+                    index, prefix = index + 1, cur_str[:index+1]
+                else: break
+            return prefix
+        return None
+
+    def search_common_prefix(self):
+        with codecs.open(TMP_PATH + '/reclassify_programs.txt', 'r') as fr:
+            programs = [line.strip() for line in fr.readlines()]
+
+        # class getoutofloop(Exception): pass
+        prefixs, extracted_programs = [], []
+
+        pre, cur = 0, 1
+        N, max_length = threshold, len(programs)
+        while cur < max_length:
+            pre_str, cur_str = programs[pre], programs[cur]
+            prefix = self.get_common_prefix(pre_str, cur_str)
+            if prefix != None:
+                start_pos = pre
+                pre, cur = cur, cur + 1
+                while cur < max_length:
+                    pre_str, cur_str = programs[pre], programs[cur]
+                    res = self.get_common_prefix(pre_str, cur_str)
+                    if res is None:
+                        if not re.match('^\d+$', prefix[:4]):
+                            prefixs.append(prefix)
+                            extracted_programs.append(programs[start_pos: cur])
+                        break
+                    else:
+                        prefix = res if len(res) < len(prefix) else prefix
+                        pre, cur = cur, cur + 1
+            pre, cur = cur, cur + 1
+
+        handled_prefixs = []
+        for prefix in prefixs:
+            res = re.sub('\d+$', '', prefix)
+            if len(res) < 2: print(prefix)
+            handled_prefixs.append(res)
+
+        with codecs.open(TMP_PATH + '/prefixs.txt', 'w') as fw:
+            fw.write('\n'.join(sorted(set(prefixs))))
+
+        with codecs.open(TMP_PATH + '/prefix_normalized.txt', 'w') as fw:
+            fw.write('\n'.join(sorted(set(handled_prefixs))))
+
+        with codecs.open(TMP_PATH + '/prefix_programs.txt', 'w') as fw:
+            for prefix, programs in zip(prefixs, extracted_programs):
+                fw.write('The prefix:' + prefix + '\n')
+                fw.write('\n'.join(programs) + '\n\n')
 
 if __name__ == '__main__':
     handler = Classify()
-    handler.classify_exist_channels('tmp_result/normalized_channels.txt')
+    # handler.classify_exist_channels('tmp_result/normalized_channels.txt')
+    # handler.normalize_scrapy_programs()
+    # handler.get_reclassify_programs()
+    handler.search_common_prefix()

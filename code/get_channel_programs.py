@@ -7,8 +7,6 @@ import shutil
 import multiprocessing
 from string import punctuation as env_punc
 from zhon.hanzi import punctuation as chs_punc
-from classify_programs import Classify
-from basic_category import sports_keywords
 
 DEBUG = True
 TMP_PATH = os.getcwd() + '/tmp_result'
@@ -190,59 +188,6 @@ class Preprocess(object):
         with codecs.open(TMP_PATH + '/all_unique_programs.txt', 'w', encoding='utf8') as fw:
             fw.write('\n'.join(sorted(set(programs))))
 
-    def get_reclassify_programs(self):
-        """
-        extract programms need to be reclassify
-        :return: reclassify_programs.txt, reclassify_channel_programs.txt
-        """
-
-        classifier = Classify()
-        reclassify_programs = []
-        reclassify_channel_programs = []
-        all_files = sorted(os.listdir(EXTRACT_CHANNEL_PROGRAM))
-        for file_name in all_files:
-            if file_name == 'uniq_13.txt': continue
-            fr_path = EXTRACT_CHANNEL_PROGRAM + '/' + file_name
-            with codecs.open(fr_path, 'r', encoding='utf8') as fr:
-                if file_name == 'uniq_96.txt':
-                    programs = [line.strip() for line in set(fr.readlines()) if line.strip()]
-                    for program in programs:
-                        # 音乐、电视剧、体育
-                        if re.match('^\d+-.*-.*$', program): continue
-                        if re.search('^电视剧|剧场', program): continue
-                        if re.search(sports_keywords, program): continue
-                        res = classifier.preprocess_program(program)
-                        if res: reclassify_programs.append(res)
-                else:
-                    for line in fr.readlines():
-                        tmp = line.strip()
-                        if not tmp: continue
-
-                        res = tmp.split('|')
-                        if len(res) != 2: continue
-                        channel, program = res[0], res[1]
-
-                        channel = classifier.preprocess_channel(channel)
-                        program = classifier.preprocess_program(program)
-
-                        if not program: continue
-                        if re.search('^电视剧|剧场', program): continue
-                        if re.search(sports_keywords, program): continue
-                        if not channel:
-                            reclassify_programs.append(program)
-                            continue
-
-                        category = classifier.classify_channel(channel, flag=False)
-                        if category == '再分类':
-                            reclassify_channel_programs.append(channel + '|' + program)
-                        else:
-                            reclassify_programs.append(program)
-
-        with codecs.open(TMP_PATH + '/reclassify_programs.txt', 'w') as fw:
-                fw.write('\n'.join(sorted(set(reclassify_programs))))
-        with codecs.open(TMP_PATH + '/reclassify_channel_programs.txt', 'w') as fw:
-                fw.write('\n'.join(sorted(set(reclassify_channel_programs))))
-
     def normalize_programs(self, src_path, des_path):
         """
         normalize program names
@@ -324,23 +269,6 @@ class Preprocess(object):
             with codecs.open(des_path, 'w', encoding='utf') as fw:
                 fw.write('\n'.join(sorted(set(tmp_channels))))
 
-    def normalize_scrapy_programs(self):
-        """
-        merge and normalize scrapy_programs by category
-        :return:
-        """
-
-        os.chdir(SCRAPY_PATH)
-        for category in ['电视剧', '电影', '动漫']:
-            command = 'cat *_' + category + '.txt |sort|uniq > merge_scrapy_' + category + '.txt'
-            os.system(command)
-
-        for category in ['电视剧', '电影', '动漫']:
-            src_path = SCRAPY_PATH + '/merge_scrapy_' + category + '.txt'
-            des_path = SCRAPY_PATH + '/normalized_scrapy_' + category + '.txt'
-            self.normalize_programs(src_path, des_path)
-
-
 if __name__ == "__main__":
     handler = Preprocess()
 
@@ -349,5 +277,3 @@ if __name__ == "__main__":
     # handler.get_all_channels_programs()
     # handler.normalize_programs(TMP_PATH + '/all_unique_programs.txt', TMP_PATH + '/normalized_prorgams.txt')
     # handler.normalize_channels(TMP_PATH + '/all_unique_channels.txt', TMP_PATH + '/normalized_channels.txt')
-    # handler.get_reclassify_programs()
-    handler.normalize_scrapy_programs()
