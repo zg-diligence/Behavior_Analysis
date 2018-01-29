@@ -1,8 +1,8 @@
 import os, re, json
 import time, codecs
 from redis import Redis
+from queue import Queue
 from bs4 import BeautifulSoup
-from queue import Queue, Empty
 from random import randint, choice
 from redis.connection import BlockingConnectionPool
 from urllib.request import urlopen, quote, Request, \

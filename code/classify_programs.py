@@ -4,7 +4,7 @@ import codecs
 from string import punctuation as env_punc
 from zhon.hanzi import punctuation as chs_punc
 
-from get_channel_programs import Preprocess
+from extract_channel_programs import Preprocess
 from basic_category import classified_channels, sports_keywords
 
 DEBUG = True
@@ -12,6 +12,7 @@ threshold = 4
 TMP_PATH = os.getcwd() + '/tmp_result'
 SCRAPY_PATH = TMP_PATH + '/scrapy_programs'
 EXTRACT_CHANNEL_PROGRAM = TMP_PATH + '/extract_channel_program'
+
 
 class Classify(object):
     def __init__(self):
@@ -62,7 +63,7 @@ class Classify(object):
         return channel
 
     def classify_channel(self, channel, flag=True):
-        if flag: # have not execute preprocess
+        if flag:  # have not execute preprocess
             channel = self.preprocess_channel(channel)
 
         if channel not in self.all_channels:
@@ -84,13 +85,13 @@ class Classify(object):
         unvisible_chars = ''.join([chr(i) for i in range(32)])
         regexes.append(re.compile('.*(报复|反复|回复|修复)$'))
         regexes.append(re.compile('(限免|中文版|英文版|回看|复播|重播|复|[上中下尾]|[ⅡⅢI]+)$'))
-        regexes.append(re.compile('\s'))                            # remove space chars
-        regexes.append(re.compile('[%s]' % punctuations))           # remove punctuations
-        regexes.append(re.compile('[%s]' % unvisible_chars))        # remove control chars
-        regexes.append(re.compile('^(HD|3D)|(HD|SD|3D|TV|杜比)$'))   # remove program marks
-        regexes.append(re.compile('(\d{2,4}年)*\d{1,2}月\d{1,2}日'))       # remove date
+        regexes.append(re.compile('\s'))  # remove space chars
+        regexes.append(re.compile('[%s]' % punctuations))  # remove punctuations
+        regexes.append(re.compile('[%s]' % unvisible_chars))  # remove control chars
+        regexes.append(re.compile('^(HD|3D)|(HD|SD|3D|TV|杜比)$'))  # remove program marks
+        regexes.append(re.compile('(\d{2,4}年)*\d{1,2}月\d{1,2}日'))  # remove date
         regexes.append(re.compile('(第([%s]+|\d+)[部季集]+)$' % chs_num))  # remove serial number
-        regexes.append(re.compile('(\d+|[%s]+)$' % chs_num))        # remove serial number
+        regexes.append(re.compile('(\d+|[%s]+)$' % chs_num))  # remove serial number
 
         for regex in regexes[2:]:
             program = re.sub(regex, '', program)
@@ -215,9 +216,9 @@ class Classify(object):
             fw.write('\n'.join(star_programs))
 
         with codecs.open(TMP_PATH + '/reclassify_programs.txt', 'w') as fw:
-                fw.write('\n'.join(sorted(set(reclassify_programs))))
+            fw.write('\n'.join(sorted(set(reclassify_programs))))
         with codecs.open(TMP_PATH + '/reclassify_channel_programs.txt', 'w') as fw:
-                fw.write('\n'.join(sorted(set(reclassify_channel_programs))))
+            fw.write('\n'.join(sorted(set(reclassify_channel_programs))))
 
     def get_common_prefix(self, pre_str, cur_str, N=threshold):
         if len(pre_str) < N or len(cur_str) < N:
@@ -229,8 +230,9 @@ class Classify(object):
             max_index = min(len(cur_str), len(pre_str))
             while index < max_index:
                 if cur_str[index] == pre_str[index]:
-                    index, prefix = index + 1, cur_str[:index+1]
-                else: break
+                    index, prefix = index + 1, cur_str[:index + 1]
+                else:
+                    break
             return prefix
         return None
 
@@ -278,6 +280,7 @@ class Classify(object):
             for prefix, programs in zip(prefixs, extracted_programs):
                 fw.write('The prefix:' + prefix + '\n')
                 fw.write('\n'.join(programs) + '\n\n')
+
 
 if __name__ == '__main__':
     handler = Classify()

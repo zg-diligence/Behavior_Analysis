@@ -16,9 +16,10 @@ EXTRACT_ITEM_ERR = TMP_PATH + '/extract_item_error'
 EXTRACT_PROGRAM_ERR = TMP_PATH + '/extract_program_error'
 EXTRACT_CHANNEL_PROGRAM = TMP_PATH + '/extract_channel_program'
 
+
 class Preprocess(object):
     def __init__(self):
-        self.events = ['21','5','96','97','6','7','13','14','17', '23']
+        self.events = ['21', '5', '96', '97', '6', '7', '13', '14', '17', '23']
 
     def extract_channel_program(self, err_fw, fr_path, line):
         """
@@ -39,8 +40,8 @@ class Preprocess(object):
                 return items[11] + "|" + items[12]
             elif items[1] == "96":
                 return items[-2]
-        except IndexError as e: # invalid data item
-            err_fw.write(fr_path + '|'  + str(e) + '|' + line +'\n\r')
+        except IndexError as e:  # invalid data item
+            err_fw.write(fr_path + '|' + str(e) + '|' + line + '\n\r')
             return None
 
     def write_extract_buffer(self, src_folder, channel_program_res):
@@ -86,7 +87,7 @@ class Preprocess(object):
                             channel_program_res[self.events.index(event_num)].append(res)
                         if event_num in ['21', '5']:
                             fw.write(line)
-                    except IndexError as e: # invalid data item
+                    except IndexError as e:  # invalid data item
                         err.write(fr_path + '|' + str(e) + '|' + line + '\n\r')
                 fr.close()
                 fw.close()
@@ -103,7 +104,7 @@ class Preprocess(object):
         """
 
         # src_catelogue = ROOT_CATELOGUE + "/origin_data"
-        src_catelogue =  "/media/gzhang/Others/original_data"
+        src_catelogue = "/media/gzhang/Others/original_data"
         des_catelogue = ROOT_CATELOGUE + "/extract_data"
 
         if not os.path.exists(EXTRACT_ITEM_ERR):
@@ -202,13 +203,13 @@ class Preprocess(object):
         unvisible_chars = ''.join([chr(i) for i in range(32)])
         regexes.append(re.compile('.*(报复|反复|回复|修复)$'))
         regexes.append(re.compile('(限免|中文版|英文版|回看|复播|重播|复|[上中下尾]|[ⅡⅢI]+)$'))
-        regexes.append(re.compile('\s'))                            # remove space chars
-        regexes.append(re.compile('[%s]' % punctuations))           # remove punctuations
-        regexes.append(re.compile('[%s]' % unvisible_chars))        # remove control chars
-        regexes.append(re.compile('^(HD|3D)|(HD|SD|3D|TV|杜比)$'))   # remove program marks
-        regexes.append(re.compile('(\d{2,4}年)*\d{1,2}月\d{1,2}日'))       # remove date
+        regexes.append(re.compile('\s'))  # remove space chars
+        regexes.append(re.compile('[%s]' % punctuations))  # remove punctuations
+        regexes.append(re.compile('[%s]' % unvisible_chars))  # remove control chars
+        regexes.append(re.compile('^(HD|3D)|(HD|SD|3D|TV|杜比)$'))  # remove program marks
+        regexes.append(re.compile('(\d{2,4}年)*\d{1,2}月\d{1,2}日'))  # remove date
         regexes.append(re.compile('(第([%s]+|\d+)[部季集]+)$' % chs_num))  # remove serial number
-        regexes.append(re.compile('(\d+|[%s]+)$' % chs_num))        # remove serial number
+        regexes.append(re.compile('(\d+|[%s]+)$' % chs_num))  # remove serial number
 
         with codecs.open(src_path, 'r', encoding='utf8') as fr:
             for line in fr:
@@ -228,7 +229,7 @@ class Preprocess(object):
                 tmp = re.sub('(第([%s]+|\d+)[部季集]+)$' % chs_num, '', tmp)
 
                 # remove chinese garbled
-                if re.search('[^(\w+\-)]', tmp):continue
+                if re.search('[^(\w+\-)]', tmp): continue
                 if tmp: programs.append(tmp)
 
         with codecs.open(des_path, 'w', encoding='utf8') as fw:
@@ -268,6 +269,7 @@ class Preprocess(object):
 
             with codecs.open(des_path, 'w', encoding='utf') as fw:
                 fw.write('\n'.join(sorted(set(tmp_channels))))
+
 
 if __name__ == "__main__":
     handler = Preprocess()
