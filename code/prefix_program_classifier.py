@@ -85,9 +85,10 @@ class Scrapyer(object):
             if self.pre_empty_flag:
                 self.empty_count += 1
                 if self.empty_count >= 5:
-                    for _ in range(5):
-                        program = unabled_programs.pop(-1)
+                    for i in range(5, 0, -1):
+                        program = unabled_programs[i]
                         if empty_times[program] < 3:
+                            unabled_programs.pop(i)
                             source_programs.put(program)
                             empty_times[program] += 1
                     self.proxypool.change_proxy()
@@ -139,30 +140,29 @@ class Scrapyer(object):
                 html = urlopen(Request(url=url), timeout=2)
                 bsObj = BeautifulSoup(html, 'html.parser')
                 break
-            except Exception as e:
+            except:
                 self.retry_count -= 1
-                if DEBUG: print('error1 =>', e)
+                if self.retry_count <= 0:
+                    if DEBUG: print("Please waiting...")
+                    self.proxypool.change_proxy()
+                    self.retry_count = 3
 
-        if self.retry_count > 0:
-            try:
-                page_content = bsObj.find_all('div', class_='page-content')[0]
-                page_columns = [item.a.get_text() for item in page_content.dl.find_all('dd')]
-                page_columns = [column for column in page_columns if not re.search('^(播出时间|电视频道)', column)]
-                page_content_uls = page_content.div.find_all('ul', class_=re.compile('^.+qtable$'), recursive=False)
-                if DEBUG: print(page_columns)
-                if len(page_columns) == 0:
-                    unabled_programs.append(program)
-                else:
-                    enabled_programs.append(program)
-                    column_programs = self.collect_programs(page_content_uls, page_columns)
-                    if DEBUG: print(column_programs)
-                    collected_programs.append({program: column_programs})
-                self.check_empty(len(page_columns))
-            except Exception as e:
-                if DEBUG: print('error2 =>', e)
-                source_programs.put(program)
-                self.proxypool.change_proxy()
-        else:
+        try:
+            page_content = bsObj.find_all('div', class_='page-content')[0]
+            page_columns = [item.a.get_text() for item in page_content.dl.find_all('dd')]
+            page_columns = [column for column in page_columns if not re.search('^(播出时间|电视频道)', column)]
+            page_content_uls = page_content.div.find_all('ul', class_=re.compile('^.+qtable$'), recursive=False)
+            if DEBUG: print(page_columns)
+            if len(page_columns) == 0:
+                unabled_programs.append(program)
+            else:
+                enabled_programs.append(program)
+                column_programs = self.collect_programs(page_content_uls, page_columns)
+                if DEBUG: print(column_programs)
+                collected_programs.append({program: column_programs})
+            self.check_empty(len(page_columns))
+        except Exception as e:
+            if DEBUG: print('error2 =>', e)
             source_programs.put(program)
             self.proxypool.change_proxy()
 
@@ -212,10 +212,10 @@ class Scrapyer(object):
                 html = urlopen(Request(url=href), timeout=2)
                 bsObj = BeautifulSoup(html, 'html.parser')
                 break
-            except Exception as e:
-                if DEBUG: print('error1 =>', e)
+            except:
                 self.retry_count -= 1
                 if self.retry_count <= 0:
+                    if DEBUG: print("Please waiting...")
                     self.proxypool.change_proxy()
                     self.retry_count = 3
 
@@ -392,13 +392,13 @@ if __name__ == '__main__':
     scrapyer = Scrapyer(proxypool)
     handler = PrefixClassifier(scrapyer)
 
-    # with codecs.open(TMP_PATH + '/prefix_normalized.txt', 'r') as fr:
-    #     programs = [line.strip() for line in fr.readlines()]
+    with codecs.open(TMP_PATH + '/prefix_normalized.txt', 'r') as fr:
+        programs = [line.strip() for line in fr.readlines()]
 
-    # res_1 = handler.crawl_to_search_programs(programs)
-    res_2 = handler.check_to_classify_programs()
-    res_3 = handler.crawl_to_classify_programs(res_2[0])
+    res_1 = handler.crawl_to_search_programs(programs[:50])
+    # res_2 = handler.check_to_classify_programs()
+    # res_3 = handler.crawl_to_classify_programs(res_2[0])
 
-    classified_result = res_2[1] + res_3
-    with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
-        fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
+    # classified_result = res_2[1] + res_3
+    # with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
+    #     fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))

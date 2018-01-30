@@ -2,6 +2,7 @@ import os
 import codecs
 from bs4 import BeautifulSoup
 from urllib.request import urlopen, Request
+from extract_channel_programs import Preprocess
 
 DEBUG = True
 TMP_PATH = os.getcwd() + '/tmp_result'
@@ -193,6 +194,23 @@ class Scrapyer(object):
         for name in name_categories.keys():
             des_file_path = SCRAPY_PATH + '/星辰_' + name_categories[name] + '.txt'
             self.crawl_xingchen_program(name, des_file_path)
+
+    def normalize_scrapy_programs(self):
+        """
+        merge and normalize scrapy_programs by category
+        :return:
+        """
+
+        os.chdir(SCRAPY_PATH)
+        for category in ['电视剧', '电影', '动漫']:
+            command = 'cat *_' + category + '.txt |sort|uniq > merge_scrapy_' + category + '.txt'
+            os.system(command)
+
+        handler = Preprocess()
+        for category in ['电视剧', '电影', '动漫']:
+            src_path = SCRAPY_PATH + '/merge_scrapy_' + category + '.txt'
+            des_path = SCRAPY_PATH + '/normalized_scrapy_' + category + '.txt'
+            handler.normalize_programs(src_path, des_path)
 
 
 if __name__ == '__main__':

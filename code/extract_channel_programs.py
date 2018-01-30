@@ -5,8 +5,8 @@ import codecs
 import psutil
 import shutil
 import multiprocessing
-from string import punctuation as env_punc
-from zhon.hanzi import punctuation as chs_punc
+
+from classify_programs import Classifyer
 
 DEBUG = True
 TMP_PATH = os.getcwd() + '/tmp_result'
@@ -184,9 +184,9 @@ class Preprocess(object):
                     channels += res[0]
                     programs += res[1]
 
-        with codecs.open(TMP_PATH + '/all_unique_channels.txt', 'w', encoding='utf8') as fw:
+        with codecs.open(TMP_PATH + '/original_unique_channels.txt', 'w', encoding='utf8') as fw:
             fw.write('\n'.join(sorted(set(channels))))
-        with codecs.open(TMP_PATH + '/all_unique_programs.txt', 'w', encoding='utf8') as fw:
+        with codecs.open(TMP_PATH + '/original_unique_programs.txt', 'w', encoding='utf8') as fw:
             fw.write('\n'.join(sorted(set(programs))))
 
     def normalize_programs(self, src_path, des_path):
@@ -197,43 +197,15 @@ class Preprocess(object):
         :return normalized_prorgams.txt
         """
 
-        programs, regexes = [], []
-        chs_num = '一二三四五六七八九十'
-        punctuations = env_punc + chs_punc
-        unvisible_chars = ''.join([chr(i) for i in range(32)])
-        regexes.append(re.compile('.*(报复|反复|回复|修复)$'))
-        regexes.append(re.compile('(限免|中文版|英文版|回看|复播|重播|复|[上中下尾]|[ⅡⅢI]+)$'))
-        regexes.append(re.compile('\s'))  # remove space chars
-        regexes.append(re.compile('[%s]' % punctuations))  # remove punctuations
-        regexes.append(re.compile('[%s]' % unvisible_chars))  # remove control chars
-        regexes.append(re.compile('^(HD|3D)|(HD|SD|3D|TV|杜比)$'))  # remove program marks
-        regexes.append(re.compile('(\d{2,4}年)*\d{1,2}月\d{1,2}日'))  # remove date
-        regexes.append(re.compile('(第([%s]+|\d+)[部季集]+)$' % chs_num))  # remove serial number
-        regexes.append(re.compile('(\d+|[%s]+)$' % chs_num))  # remove serial number
-
         with codecs.open(src_path, 'r', encoding='utf8') as fr:
-            for line in fr:
-                tmp = line.strip()
-                for regex in regexes[2:]:
-                    tmp = re.sub(regex, '', tmp)
-                if not re.match(regexes[0], tmp):
-                    tmp = re.sub(regexes[1], '', tmp)
+            src_programs = [line.strip() for line in set(fr.readlines())]
 
-                # remove serial number at the middle of the program name
-                res = re.search('第([%s]+|\d+)[部集季]+' % chs_num, tmp)
-                if res and not re.match('^\d+', tmp):
-                    tmp = tmp[:res.span()[0]]
-
-                # remove serial number at the end of the program name again
-                tmp = re.sub('(\d+|[%s]+)$' % chs_num, '', tmp)
-                tmp = re.sub('(第([%s]+|\d+)[部季集]+)$' % chs_num, '', tmp)
-
-                # remove chinese garbled
-                if re.search('[^(\w+\-)]', tmp): continue
-                if tmp: programs.append(tmp)
+        handler = Classifyer()
+        des_programs = [handler.preprocess_program(program) for program in src_programs]
+        des_programs = [program for program in des_programs if program]
 
         with codecs.open(des_path, 'w', encoding='utf8') as fw:
-            fw.write('\n'.join(sorted(set(programs))))
+            fw.write('\n'.join(sorted(set(des_programs))))
 
     def normalize_channels(self, src_path, des_path):
         """
@@ -244,31 +216,38 @@ class Preprocess(object):
         """
 
         with codecs.open(src_path, 'r', encoding='utf8') as fr:
-            # remove punctuations
-            punctuations = env_punc + chs_punc
-            channels = [re.sub('[%s]' % punctuations, '', line.strip()) for line in fr]
+            src_channels = [line.strip() for line in set(fr.readlines())]
 
-            # remove channels including chinese garbled
-            channels = [channel for channel in channels if not re.search('[^(\w+\-)]', channel)]
+        handler = Classifyer()
+        des_channels = [handler.preprocess_channel(channel) for channel in src_channels]
+        des_channels = [channel for channel in des_channels if channel]
 
-            # remove channels whose name is purely made up with number
-            channels = [channel for channel in channels if not re.match('^[0-9]+$', channel)]
+        with codecs.open(des_path, 'w', encoding='utf') as fw:
+            fw.write('\n'.join(sorted(set(des_channels))))
 
-            # remove Dolby、HD、高清 channels
-            tmp_channels = []
-            channels = sorted(list(set(channels)))
+    def classify_exist_channels(self, file_path):
+        """
+        classify all exist channels roughly
+        :param file_path:path the target file
+        """
+
+        with codecs.open(file_path, 'r', encoding='utf8') as fr:
+            regexs = ['^(CCTV|中央)', '卫视$', '影院|电影',
+                      '广播|电台|调频|频率|之声$|FM$|AM$',
+                      '剧场', '音乐', '纪实|纪录', '音乐', '购',
+                      '试播|通道|试验|体验|测试|TEST|test', '\w+']
+
+            channels = [line.strip() for line in fr]
+            categories = [[] for _ in range(len(regexs) + 1)]
             for channel in channels:
-                if len(channel) >= 5 and re.search('(高清|频道|HD)$', channel):
-                    tmp_channels.append(channel[:-2])
-                elif re.search('Dolby$', channel):
-                    tmp_channels.append(channel[:-5])
-                elif re.search('^NVOD', channel) and channel != 'NVOD4K':
-                    tmp_channels.append(channel[4:])
-                else:
-                    tmp_channels.append(channel)
+                for i in range(len(regexs)):
+                    if re.search(regexs[i], channel, re.I):
+                        categories[i].append(channel)
+                        break
 
-            with codecs.open(des_path, 'w', encoding='utf') as fw:
-                fw.write('\n'.join(sorted(set(tmp_channels))))
+        with codecs.open(TMP_PATH + "/nmanual_classified_channels.txt", 'w', encoding='utf8') as fw:
+            for i in range(len(categories)):
+                fw.write('\n'.join(sorted(set(categories[i]))) + '\n\n')
 
 
 if __name__ == "__main__":
@@ -277,5 +256,6 @@ if __name__ == "__main__":
     # handler.extract_all_events(3)
     # handler.cat_sort_uniq_lines()
     # handler.get_all_channels_programs()
-    # handler.normalize_programs(TMP_PATH + '/all_unique_programs.txt', TMP_PATH + '/normalized_prorgams.txt')
-    # handler.normalize_channels(TMP_PATH + '/all_unique_channels.txt', TMP_PATH + '/normalized_channels.txt')
+    # handler.normalize_programs(TMP_PATH + '/original_unique_programs.txt', TMP_PATH + '/normalized_prorgams.txt')
+    # handler.normalize_channels(TMP_PATH + '/original_unique_channels.txt', TMP_PATH + '/normalized_channels.txt')
+    handler.classify_exist_channels(TMP_PATH + '/normalized_channels.txt')
