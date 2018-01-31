@@ -8,7 +8,7 @@ from redis.connection import BlockingConnectionPool
 from urllib.request import urlopen, quote, Request, \
     ProxyHandler, build_opener, install_opener
 
-from classify_programs import Classifyer
+from program_first_classifyer import Classifyer
 from basic_category import categories as all_categories
 
 TMP_PATH = os.getcwd() + '/tmp_result'
@@ -250,14 +250,120 @@ class PrefixClassifier(object):
     def __init__(self, scrapyer):
         self.scrapyer = scrapyer
 
-    def crawl_to_search_programs(self, programs):
+    def get_common_prefix(self, pre_str, cur_str, N=4):
+        """
+        find common prefix between pre_str and cur_str
+        minimal length of the prefix is N
+        :param pre_str:
+        :param cur_str:
+        :param N:
+        :return:
+        """
+
+        if len(pre_str) < N or len(cur_str) < N:
+            return None
+
+        if cur_str[:N] == pre_str[:N]:
+            prefix = cur_str[:N]
+            index = N
+            max_index = min(len(cur_str), len(pre_str))
+            while index < max_index:
+                if cur_str[index] == pre_str[index]:
+                    index, prefix = index + 1, cur_str[:index + 1]
+                else:
+                    break
+            return prefix
+        return None
+
+    def get_best_prefix(self, programs, prefix, pre, cur, min_length):
+        """
+        find best prefix between continuously items
+        :param programs: all continuous programs
+        :param prefix: current prefix
+        :param pre: pos of the pre item
+        :param cur: pos of the current item
+        :param min_length: minimal length of the best prefix
+        :return: if the best prefix is made up with pure number, return None, pre, cur, []
+                else return best_prefix, pre, cur, continuous_programs
+        """
+
+        start_pos = pre
+        pre, cur = cur, cur + 1
+        max_length = len(programs)
+        while cur < max_length:
+            pre_str, cur_str = programs[pre], programs[cur]
+            res = self.get_common_prefix(pre_str, cur_str, min_length)
+            if res is None:
+                if not re.match('^\d+$', prefix[:4]):
+                    return prefix, pre, cur, programs[start_pos: cur]
+                return None, pre, cur, []
+            else:
+                prefix = res if len(res) < len(prefix) else prefix
+                pre, cur = cur, cur + 1
+
+    def search_common_prefix(self):
+        """
+        search all possible prefixs among all programs
+        :return:prefix_programs.txt prefix_lists.txt
+        """
+
+        with codecs.open(TMP_PATH + '/reclassify_programs.txt', 'r') as fr:
+            programs = [line.strip() for line in fr.readlines()]
+
+        prefixs, extracted_programs = [], []
+
+        # search common prefix
+        pre, cur = 0, 1
+        N, max_length = 4, len(programs)
+        while cur < max_length:
+            pre_str, cur_str = programs[pre], programs[cur]
+            prefix = self.get_common_prefix(pre_str, cur_str)
+            if prefix:
+                res_4 = self.get_best_prefix(programs, prefix, pre, cur, min_length=N)
+                res_3 = self.get_best_prefix(programs, prefix, pre, cur, min_length=N-1)
+                # res_2 = self.get_best_prefix(programs, prefix, pre, cur, min_length=N-2)
+                res = res_4
+                if len(res_3[3]) - len(res_4[3]) >= 5:
+                    res = res_3
+                    # if len(res_2[3]) - len(res_3[3]) >= threadhold:
+                    #     res = res_2
+                pre, cur = res[1], res[2]
+                if res[0]:
+                    prefixs.append(res[0])
+                    extracted_programs.append(res[3])
+            pre, cur = cur, cur + 1
+
+        # normalize the prefixs
+        handled_prefixs = []
+        for prefix in prefixs:
+            if re.search('的$', prefix):
+                extracted_programs.pop(prefixs.index(prefix))
+                continue
+
+            res = prefix
+            if re.search('\D\D(\d{1,2}|之)$', prefix):
+                res = re.sub('(\d{1,2}|之)$', '', prefix)
+            handled_prefixs.append(res)
+        prefixs = handled_prefixs
+
+        if DEBUG: print(sum([len(programs) for programs in extracted_programs]))
+        with codecs.open(TMP_PATH + '/prefix_programs.txt', 'w') as fw:
+            fw.write('\n'.join(sorted(set(prefixs))))
+        with codecs.open(TMP_PATH + '/prefix_lists.txt', 'w') as fw:
+            for prefix, programs in zip(prefixs, extracted_programs):
+                fw.write('The prefix:' + prefix + '\n')
+                fw.write('\n'.join(programs) + '\n\n')
+
+    def crawl_to_search_programs(self):
         """
         crawl relative programs info from xingchen
-        :param programs:
         :return:
         """
 
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
+        with codecs.open(TMP_PATH + '/prefix_programs.txt', 'r') as fr:
+            programs = [line.strip() for line in fr.readlines()]
 
         global empty_times
         for program in programs: source_programs.put(program)
@@ -401,6 +507,72 @@ class PrefixClassifier(object):
         else:
             return classified_results
 
+    def classify_second(self):
+        """
+        read prefixs crawled result and classify the relative programs
+        :return:
+        """
+
+        with open(TMP_PATH + '/prefix_lists.txt', 'r') as fr:
+            items = [line.strip() for line in fr.readlines()]
+
+            groups, group = [], []
+            for item in items:
+                if item:
+                    group.append(item)
+                else:
+                    groups.append(group)
+                    group = []
+
+            keymaps = []
+            for group in groups:
+                prefix = group[0].split(':')[1]
+                programs = group[1:]
+                keymaps.append((prefix, programs))
+            keymaps = dict(keymaps)
+
+        with open(TMP_PATH + '/prefix_classified_result.txt', 'r') as fr:
+            items = [line.strip() for line in fr.readlines()]
+            prefix_categories = [item.split('\t') for item in items]
+            prefix_categories = dict(prefix_categories)
+
+        classified_programs = []
+        for prefix, programs in keymaps.items():
+            category = prefix_categories.get(prefix, 'None')
+            if category == 'None': continue
+            for program in programs:
+                classified_programs.append(('3prefix',  program, category))
+        return classified_programs
+
+    def merge_classify_prefix(self):
+        """
+        merge the classified result from class_programs.py
+        :return:
+        """
+
+        with open(TMP_PATH + '/all_programs_category.txt', 'r') as fr:
+            items = [line.strip() for line in fr.readlines()]
+            classified_programs = [item.split('\t\t') for item in items]
+            classified_programs = [(a, c, b) for a, b, c in classified_programs]
+        with open(TMP_PATH + '/reclassify_programs.txt', 'r') as fr:
+            unclassify_programs = [line.strip() for line in fr.readlines()]
+
+        unclassify_programs = set(unclassify_programs)
+        prefix_classified = self.classify_second()
+        classified_programs += prefix_classified
+        unclassify_programs -= set([program for _, program, _ in prefix_classified])
+        classified_programs = set(classified_programs)
+
+        if DEBUG: print(len(classified_programs), len(unclassify_programs))
+        if DEBUG: print(len(set([(program, category) for _, program, category in classified_programs])))
+        if DEBUG: print(len(set([program for _, program, _ in classified_programs])))
+
+        classified_programs = sorted(classified_programs, key=lambda item: (item[0], item[2], item[1]))
+        with codecs.open(TMP_PATH + '/reclassify_programs_2.txt', 'w') as fw:
+            fw.write('\n'.join(sorted(unclassify_programs)))
+        with codecs.open(TMP_PATH + '/all_programs_category_2.txt', 'w') as fw:
+            fw.write('\n'.join(['%s\t\t%s\t\t%s' % (a, c, b) for a, b, c in classified_programs]))
+
 
 if __name__ == '__main__':
     proxypool = ProxyPool()
@@ -408,15 +580,13 @@ if __name__ == '__main__':
     scrapyer = Scrapyer(proxypool)
     handler = PrefixClassifier(scrapyer)
 
-    # with codecs.open(TMP_PATH + '/prefix_programs.txt', 'r') as fr:
-    #     programs = [line.strip() for line in fr.readlines()]
+    # res_1 = handler.crawl_to_search_programs()
+    # res_2 = handler.check_to_classify_programs()
+    # res_3 = handler.crawl_to_classify_programs(res_2[0])
+    # classified_result = res_2[1] + res_3
+    # with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
+    #     fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
 
-    # res_1 = handler.crawl_to_search_programs(programs)
-    res_2 = handler.check_to_classify_programs()
-    if DEBUG: print(len(res_2[0]), len(res_2[1]), len(res_2[2]))
-
-    res_3 = handler.crawl_to_classify_programs(res_2[0])
-    classified_result = res_2[1] + res_3
-
-    with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
-        fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
+    handler.search_common_prefix()
+    handler.classify_second()
+    handler.merge_classify_prefix()
