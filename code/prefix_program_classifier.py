@@ -8,7 +8,7 @@ from redis.connection import BlockingConnectionPool
 from urllib.request import urlopen, quote, Request, \
     ProxyHandler, build_opener, install_opener
 
-from classify_programs import Classify
+from classify_programs import Classifyer
 from basic_category import categories as all_categories
 
 TMP_PATH = os.getcwd() + '/tmp_result'
@@ -87,7 +87,7 @@ class Scrapyer(object):
                 if self.empty_count >= 5:
                     for i in range(5, 0, -1):
                         program = unabled_programs[i]
-                        if empty_times[program] < 3:
+                        if empty_times[program] < 2:
                             unabled_programs.pop(i)
                             source_programs.put(program)
                             empty_times[program] += 1
@@ -293,29 +293,45 @@ class PrefixClassifier(object):
         :return:
         """
 
-        classify = Classify()
-        items = sorted(collected_programs.items(), key=lambda item: item[0])
+        zongyi, tv, movie, sport, star = None, None, None, None, None
+        for item in collected_programs.items():
+            if item[0][:2] == '综艺':
+                zongyi = item[1]
+            elif item[0][:3] == '电视剧':
+                tv = item[1]
+            elif item[0][:2] == '电影':
+                movie = item[1]
+            elif item[0][:2] == '赛事':
+                sport = item[1]
+            elif item[0][:2] == '明星':
+                star = item[1]
+        tmp_programs = []
+        if zongyi: tmp_programs.append(('综艺', zongyi))
+        if tv: tmp_programs.append(('电视剧', tv))
+        if movie: tmp_programs.append(('电影', movie))
+        if sport: tmp_programs.append(('体育', sport))
+        if star: tmp_programs.append(('综艺', star))
 
-        for column, programs in items:
+        classify = Classifyer()
+        for column, programs in tmp_programs:
             for href, name in programs:
                 res = classify.preprocess_program(name)
                 if res == program:
                     return 1, column, href, res
 
-        for column, programs in items:
+        for column, programs in tmp_programs:
             for href, name in programs:
-                if re.search('^%s' % program, name):
+                if re.search('^%s|%s$' % (program, program), name):
                     return 2, column, href, name
 
-        columns = list(collected_programs.keys())
-        if len(columns) == 1:
-            if re.search('^赛事', columns[0]): return 3, '体育', None, None
-            if re.search('^明星', columns[0]): return 3, '综艺', None, None
-            if re.search('^电影', columns[0]): return 3, '电影', None, None
-            if re.search('^(电视剧|综艺)', columns[0]):
-                href = collected_programs[columns[0]][0][0]  # 待定
-                name = collected_programs[columns[0]][0][1]  # 待定
-                return 4, columns[0], href, name
+        if len(tmp_programs) == 1:
+            if tmp_programs[0][0] == '赛事': return 3, '体育', None, None
+            if tmp_programs[0][0] == '明星': return 3, '综艺', None, None
+            if tmp_programs[0][0] == '电影': return 3, '电影', None, None
+            if re.search('^(电视剧|综艺)', tmp_programs[0][0]):
+                href = tmp_programs[0][1][0][0]  # 待定
+                name = tmp_programs[0][1][0][1]  # 待定
+                return 4, tmp_programs[0][0], href, name
 
         return None
 
@@ -392,13 +408,15 @@ if __name__ == '__main__':
     scrapyer = Scrapyer(proxypool)
     handler = PrefixClassifier(scrapyer)
 
-    with codecs.open(TMP_PATH + '/prefix_normalized.txt', 'r') as fr:
-        programs = [line.strip() for line in fr.readlines()]
+    # with codecs.open(TMP_PATH + '/prefix_programs.txt', 'r') as fr:
+    #     programs = [line.strip() for line in fr.readlines()]
 
-    res_1 = handler.crawl_to_search_programs(programs[:50])
-    # res_2 = handler.check_to_classify_programs()
-    # res_3 = handler.crawl_to_classify_programs(res_2[0])
+    # res_1 = handler.crawl_to_search_programs(programs)
+    res_2 = handler.check_to_classify_programs()
+    if DEBUG: print(len(res_2[0]), len(res_2[1]), len(res_2[2]))
 
-    # classified_result = res_2[1] + res_3
-    # with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
-    #     fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
+    res_3 = handler.crawl_to_classify_programs(res_2[0])
+    classified_result = res_2[1] + res_3
+
+    with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
+        fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))

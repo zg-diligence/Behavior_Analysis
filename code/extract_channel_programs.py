@@ -255,7 +255,7 @@ if __name__ == "__main__":
 
     # handler.extract_all_events(3)
     # handler.cat_sort_uniq_lines()
-    # handler.get_all_channels_programs()
-    # handler.normalize_programs(TMP_PATH + '/original_unique_programs.txt', TMP_PATH + '/normalized_prorgams.txt')
-    # handler.normalize_channels(TMP_PATH + '/original_unique_channels.txt', TMP_PATH + '/normalized_channels.txt')
-    handler.classify_exist_channels(TMP_PATH + '/normalized_channels.txt')
+    handler.get_all_channels_programs()
+    handler.normalize_programs(TMP_PATH + '/original_unique_programs.txt', TMP_PATH + '/normalized_prorgams.txt')
+    handler.normalize_channels(TMP_PATH + '/original_unique_channels.txt', TMP_PATH + '/normalized_channels.txt')
+    # handler.classify_exist_channels(TMP_PATH + '/normalized_channels.txt')
