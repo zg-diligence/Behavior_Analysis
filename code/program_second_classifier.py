@@ -1,31 +1,26 @@
 import os, re, json
 import time, codecs
-from redis import Redis
-from queue import Queue
-from bs4 import BeautifulSoup
 from random import randint, choice
+from multiprocessing import Pool, Manager
+
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import quote
+
+from redis import Redis
 from redis.connection import BlockingConnectionPool
-from urllib.request import urlopen, quote, Request, \
-    ProxyHandler, build_opener, install_opener
 
 from program_first_classifyer import Classifyer
 from basic_category import categories as all_categories
 
-TMP_PATH = os.getcwd() + '/tmp_result'
-
 DEBUG = True
-source_programs = Queue()
-unabled_programs = list()
-enabled_programs = list()
-collected_programs = list()
+TMP_PATH = os.getcwd() + '/tmp_result'
 
 
 class ProxyPool(object):
     def __init__(self):
-        self.proxy = None
-        self.session = Redis(connection_pool=BlockingConnectionPool(host='localhost', port=6379))
         self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/'
-                                      '537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
+                    '537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
 
     def get_proxy(self):
         """
@@ -33,9 +28,10 @@ class ProxyPool(object):
         :return:
         """
 
+        session = Redis(connection_pool=BlockingConnectionPool(host='localhost', port=6379))
         while True:
             try:
-                proxies = list(self.session.hgetall('useful_proxy').keys())
+                proxies = list(session.hgetall('useful_proxy').keys())
                 new_proxy = choice(proxies).decode('utf8')
                 break
             except:
@@ -49,7 +45,8 @@ class ProxyPool(object):
         :return:
         """
 
-        self.session.hdel('useful_proxy', proxy)
+        session = Redis(connection_pool=BlockingConnectionPool(host='localhost', port=6379))
+        session.hdel('useful_proxy', proxy)
 
     def change_proxy(self):
         """
@@ -57,27 +54,47 @@ class ProxyPool(object):
         :return:
         """
 
-        if self.proxy:
-            self.delete_proxy(self.proxy)
-        self.proxy = self.get_proxy()
-        proxy_support = ProxyHandler({'http': self.proxy})
-        opener = build_opener(proxy_support)
-        opener.addheaders = [('User-Agent', self.headers['User-Agent'])]
-        install_opener(opener)
+        # from urllib.request import ProxyHandler, build_opener, install_opener
+        # if self.proxy:
+        #     self.delete_proxy(self.proxy)
+        # self.proxy = self.get_proxy()
+        # proxy_support = ProxyHandler({'http': self.proxy})
+        # opener = build_opener(proxy_support)
+        # opener.addheaders = [('User-Agent', self.headers['User-Agent'])]
+        # install_opener(opener)
 
 
 class Scrapyer(object):
-    def __init__(self, proxypool):
+    def __init__(self):
         self.retry_count = 3
         self.empty_count = 0
         self.pre_empty_flag = False
-        self.proxypool = proxypool
 
-    def check_empty(self, num):
+        self.enabled_programs = []
+        self.unabled_programs = []
+        self.collected_programs = []
+
+        self.proxypool = ProxyPool()
+        self.proxy = self.proxypool.get_proxy()
+        self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/'
+                        '537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
+
+    def change_proxy(self):
+        """
+        change current proxy
+        :return:
+        """
+
+        self.proxypool.delete_proxy(self.proxy)
+        self.proxy = self.proxypool.get_proxy()
+
+    def check_empty(self, num, source_programs, lock):
         """
         check whether if the current proxy is dead
         if the res '[]' occurs over 5 times consecutively
         :param num: number of current columns
+        :param source_programs: programs need to crawl
+        :param lock: lock to access the source_programs
         :return:
         """
 
@@ -86,12 +103,13 @@ class Scrapyer(object):
                 self.empty_count += 1
                 if self.empty_count >= 5:
                     for i in range(5, 0, -1):
-                        program = unabled_programs[i]
+                        program = self.unabled_programs[i]
                         if empty_times[program] < 2:
-                            unabled_programs.pop(i)
-                            source_programs.put(program)
-                            empty_times[program] += 1
-                    self.proxypool.change_proxy()
+                            self.unabled_programs.pop(i)
+                            with lock:
+                                source_programs.put(program)
+                                empty_times[program] += 1
+                    self.change_proxy()
                     self.empty_count = 0
             else:
                 self.pre_empty_flag = True
@@ -123,10 +141,12 @@ class Scrapyer(object):
             programs.append(href_names)
         return dict(zip(page_columns, programs))
 
-    def crawl_relative_programs(self, program):
+    def crawl_relative_program(self, program, source_programs, lock):
         """
         crawl relative programs info from http://www.tvmao.com
         :param program:
+        :param source_programs: all programs need to crawl
+        :param lock: lock to access the source_programs
         :return:
         """
 
@@ -137,14 +157,14 @@ class Scrapyer(object):
         self.retry_count = 3
         while self.retry_count > 0:
             try:
-                html = urlopen(Request(url=url), timeout=2)
-                bsObj = BeautifulSoup(html, 'html.parser')
+                content = requests.get(url, proxies={'http': self.proxy}, headers=self.headers, timeout=2)
+                bsObj = BeautifulSoup(content.text, 'html.parser')
                 break
             except:
                 self.retry_count -= 1
                 if self.retry_count <= 0:
-                    if DEBUG: print("Please waiting...")
-                    self.proxypool.change_proxy()
+                    if DEBUG: print("waiting...")
+                    self.change_proxy()
                     self.retry_count = 3
 
         try:
@@ -152,19 +172,38 @@ class Scrapyer(object):
             page_columns = [item.a.get_text() for item in page_content.dl.find_all('dd')]
             page_columns = [column for column in page_columns if not re.search('^(播出时间|电视频道)', column)]
             page_content_uls = page_content.div.find_all('ul', class_=re.compile('^.+qtable$'), recursive=False)
-            if DEBUG: print(page_columns)
             if len(page_columns) == 0:
-                unabled_programs.append(program)
+                self.unabled_programs.append(program)
             else:
-                enabled_programs.append(program)
+                self.enabled_programs.append(program)
                 column_programs = self.collect_programs(page_content_uls, page_columns)
-                if DEBUG: print(column_programs)
-                collected_programs.append({program: column_programs})
-            self.check_empty(len(page_columns))
-        except Exception as e:
-            if DEBUG: print('error2 =>', e)
-            source_programs.put(program)
-            self.proxypool.change_proxy()
+                return {program: column_programs}
+            self.check_empty(len(page_columns), source_programs, lock)
+        except:
+            with lock:
+                source_programs.put(program)
+            self.change_proxy()
+            return None
+
+    def run_crawl_relative_programs(self, source_programs, lock):
+        """
+        starting single process
+        :param source_programs: all programs need to crawl
+        :param lock: lock to access the source_programs
+        :return:
+        """
+
+        collected_programs = []
+        while True:
+            try:
+                with lock:
+                    program = source_programs.get_nowait()
+                    if DEBUG: print(source_programs.qsize())
+                result = self.crawl_relative_program(program, source_programs, lock)
+                if result: collected_programs.append(result)
+                time.sleep(randint(0, 1))
+            except:
+                return collected_programs, self.enabled_programs, self.unabled_programs
 
     def category_classify(self, category):
         """
@@ -209,14 +248,14 @@ class Scrapyer(object):
         self.retry_count = 3
         while self.retry_count > 0:
             try:
-                html = urlopen(Request(url=href), timeout=2)
-                bsObj = BeautifulSoup(html, 'html.parser')
+                content = requests.get(href, proxies={'http': self.proxy}, headers=self.headers, timeout=2)
+                bsObj = BeautifulSoup(content.text, 'html.parser')
                 break
             except:
                 self.retry_count -= 1
                 if self.retry_count <= 0:
-                    if DEBUG: print("Please waiting...")
-                    self.proxypool.change_proxy()
+                    if DEBUG: print("waiting...")
+                    self.change_proxy()
                     self.retry_count = 3
 
         try:
@@ -241,14 +280,33 @@ class Scrapyer(object):
 
             # others
             return '综艺'
-        except Exception as e:
-            if DEBUG: print('error2 =>', e, href)
+        except:
             return None
+
+    def run_search_to_classify_programs(self, source_items, lock):
+        """
+        starting single process
+        :param source_items: all programs need to crawl more detail info
+        :param lock: lock to access source_items
+        :return:
+        """
+
+        program_cateogry = []
+        while True:
+            try:
+                with lock:
+                    item = source_items.get_nowait()
+                if DEBUG: print(source_items.qsize())
+                category = self.search_to_classify_program(item[2])
+                program_cateogry.append((item[0], category))
+                time.sleep(randint(0, 1))
+            except:
+                return program_cateogry
 
 
 class PrefixClassifier(object):
-    def __init__(self, scrapyer):
-        self.scrapyer = scrapyer
+    def __init__(self):
+        self.scrapyer = Scrapyer()
 
     def get_common_prefix(self, pre_str, cur_str, N=4):
         """
@@ -354,7 +412,7 @@ class PrefixClassifier(object):
                 fw.write('The prefix:' + prefix + '\n')
                 fw.write('\n'.join(programs) + '\n\n')
 
-    def crawl_to_search_programs(self):
+    def crawl_to_search_prefixs(self, N=6):
         """
         crawl relative programs info from xingchen
         :return:
@@ -366,17 +424,28 @@ class PrefixClassifier(object):
             programs = [line.strip() for line in fr.readlines()]
 
         global empty_times
-        for program in programs: source_programs.put(program)
         empty_times = dict(zip(programs, [0 for _ in range(len(programs))]))
 
-        try:
-            while True:
-                program = source_programs.get_nowait()
-                if DEBUG: print(); print(source_programs.qsize(), '=>', program)
-                self.scrapyer.crawl_relative_programs(program)
-                time.sleep(randint(0, 1))
-        except:
-            pass
+        source_programs = Manager().Queue()
+        for program in programs:
+            source_programs.put(program)
+
+        processes = []
+        pool, lock = Pool(processes=6), Manager().Lock()
+        for _ in range(N):
+            p = pool.apply_async(self.scrapyer.run_crawl_relative_programs, (source_programs, lock))
+            processes.append(p)
+        pool.close()
+        pool.join()
+
+        unabled_programs = []
+        enabled_programs = []
+        collected_programs = []
+        for p in processes:
+            res = p.get()
+            collected_programs += res[0]
+            enabled_programs += res[1]
+            unabled_programs += res[2]
 
         with codecs.open(TMP_PATH + '/xingchen_unabled_programs.txt', 'w') as fw:
             fw.write('\n'.join(sorted(unabled_programs)))
@@ -489,23 +558,30 @@ class PrefixClassifier(object):
                     classified_programs.append((program, category))
         return recrawl_programs, classified_programs, unclassified_programs
 
-    def crawl_to_classify_programs(self, deep_crawl_programs):
+    def crawl_to_classify_programs(self, deep_crawl_programs, N=6):
         """
         crawl more detail info from xingchen to classify programs
-        :param deep_crawl_programs: programs needs to craw more info
+        :param deep_crawl_programs: programs needs to crawl more info
+        :param N: number of processes
         :return: classified result
         """
 
-        try:
-            classified_results = []
-            for item in deep_crawl_programs:
-                category = self.scrapyer.search_to_classify_program(item[2])
-                if DEBUG: print((item[0], category))
-                classified_results.append((item[0], category))
-        except:
-            pass
-        else:
-            return classified_results
+        pool = Pool()
+        lock = Manager().Lock()
+        source_items = Manager().Queue()
+        for item in deep_crawl_programs:
+            source_items.put(item)
+
+        processes = []
+        for _ in range(N):
+            processes.append(pool.apply_async(self.scrapyer.run_search_to_classify_programs, (source_items, lock)))
+        pool.close()
+        pool.join()
+
+        classified_results = []
+        for p in processes:
+            classified_results += p.get()
+        return classified_results
 
     def classify_second(self):
         """
@@ -575,18 +651,15 @@ class PrefixClassifier(object):
 
 
 if __name__ == '__main__':
-    proxypool = ProxyPool()
-    proxypool.change_proxy()
-    scrapyer = Scrapyer(proxypool)
-    handler = PrefixClassifier(scrapyer)
+    handler = PrefixClassifier()
 
-    # res_1 = handler.crawl_to_search_programs()
-    # res_2 = handler.check_to_classify_programs()
-    # res_3 = handler.crawl_to_classify_programs(res_2[0])
-    # classified_result = res_2[1] + res_3
-    # with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
-    #     fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
+    # handler.crawl_to_search_prefixs()
+    res_2 = handler.check_to_classify_programs()
+    res_3 = handler.crawl_to_classify_programs(res_2[0])
+    classified_result = res_2[1] + res_3
+    with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
+        fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
 
-    handler.search_common_prefix()
-    handler.classify_second()
-    handler.merge_classify_prefix()
+    # handler.search_common_prefix()
+    # handler.classify_second()
+    # handler.merge_classify_prefix()
