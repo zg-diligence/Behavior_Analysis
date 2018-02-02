@@ -1,3 +1,17 @@
+"""
+  Copyright(c) 2018 Gang Zhang
+  All rights reserved.
+  Author:Gang Zhang
+  Date:2018.02.01
+
+  Function:
+    1.define categories
+
+    2.define channels can be used to classify programs
+
+    3.define some keywords to classify programs
+"""
+
 categories = ['电影', '电视剧', '新闻', '体育', '财经',
               '法制', '军事',   '农业', '纪实', '音乐',
               '戏曲', '少儿',   '健康', '时尚', '美食',
@@ -174,7 +188,7 @@ sports_keywords = \
     'WBC|WBO|WBA|WCA|WTA|WWE|UFC|NHL|NFL|NBA|CBA|F1|ATP|DOTA|AFL|IBF|ICA|LPGA|MSI|' \
     '科比|姚明|拳王|梅西|英雄联盟|守望先锋|运动会|奥运会|世锦赛|世界杯|欧洲杯|亚洲杯|足协杯|尤伯杯|汤姆斯杯|' \
     '澳网|法网|温网|美网|篮球|足球|英超|中超|中甲|意甲|德甲|欧冠|亚冠|' \
-    '游泳|跳水|田径|斯诺克|羽毛球|乒乓球|网球|排球|台球|棒球|垒球|冰球|'\
+    '跳水|田径|斯诺克|羽毛球|乒乓球|网球|排球|台球|棒球|垒球|冰球|'\
     '高尔夫|保龄球|板球|藤球|壁球|手球|曲棍球|橄榄球|围棋|象棋|' \
     '拳击|跆拳道|空手道|射箭|皮划艇|自行车|马术|击剑|体操|蹦床|' \
     '赛艇|帆船|射击|举重|摔跤|体育舞蹈|现代五项|铁人三项|武术|轮滑|卡巴迪|龙舟'
@@ -192,7 +206,9 @@ education_keywords = \
     '语文|数学|生物|化学|物理|英语|历史|地理|美术|奥数'
 
 music_keywords = \
-    'MV|mv|金曲|音乐(流行)*榜|歌曲|音乐会|演唱会'
+    'MV|mv|金曲|音乐(流行)*榜|歌曲|音乐节|演唱会'
 
 military_keywords = \
     '海军|陆军|空军|二战|军事|军情|军旅|军营|军民'
+
+country_keywords = '中国|美国|俄罗斯|伊拉克|印度|日本|朝鲜|中俄|中美'

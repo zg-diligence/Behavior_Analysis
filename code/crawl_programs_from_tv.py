@@ -1,3 +1,13 @@
+"""
+  Copyright(c) 2018 Gang Zhang
+  All rights reserved.
+  Author:Gang Zhang
+  Date:2018.02.01
+
+  Function:
+    Crawling gold programs from tv sites
+"""
+
 import os
 import codecs
 from bs4 import BeautifulSoup
@@ -10,10 +20,20 @@ SCRAPY_PATH = TMP_PATH + '/scrapy_programs'
 
 
 class Scrapyer(object):
+    """
+    Function:
+        Crawl gold programs of different categories
+    """
+
     def __init__(self):
         pass
 
     def crawl_documentary(self):
+        """
+        crawl documentary from aiqiyi and youku
+        :return:
+        """
+
         programs = []
 
         for page in range(1, 31):
@@ -245,7 +265,7 @@ class Scrapyer(object):
 
     def crawl_dianshiyan_programs(self, index, category):
         """
-        crawl programs from dianshiyan
+        crawl programs from dian_shi_yan http://www.tvyan.com
         :param index:
         :param category:
         :return:
@@ -270,7 +290,7 @@ class Scrapyer(object):
 
     def crawl_programs_from_dianshiyan(self):
         """
-        crawl programs from dianshiyan
+        crawl programs from dian_shi_yan http://www.tvyan.com
         :return:
         """
 
@@ -298,6 +318,6 @@ if __name__ == '__main__':
     # handler.scrapy_programs_from_tencent()
     # handler.scrapy_programs_from_xingchen()
     # handler.crawl_documentary()
-    # handler.normalize_scrapy_programs()
+    # handler.crawl_programs_from_dianshiyan()
 
-    handler.crawl_programs_from_dianshiyan()
+    # handler.normalize_scrapy_programs()

@@ -1,3 +1,17 @@
+"""
+  Copyright(c) 2018 Gang Zhang
+  All rights reserved.
+  Author:Gang Zhang
+  Date:2018.02.01
+
+  Function:
+    1.extracting useful items from original data
+
+    2.extracting channel and prorams from all useful items
+
+    3.normalize channel and programs
+"""
+
 import os
 import re
 import time
@@ -5,7 +19,6 @@ import codecs
 import psutil
 import shutil
 import multiprocessing
-
 from program_first_classifyer import Classifyer
 
 DEBUG = True
@@ -18,6 +31,15 @@ EXTRACT_CHANNEL_PROGRAM = TMP_PATH + '/extract_channel_program'
 
 
 class Preprocess(object):
+    """
+    Function:
+        1.extracting useful items from original data
+
+        2.extracting channel and prorams from all useful items
+
+        3.normalize channel and programs
+    """
+
     def __init__(self):
         self.events = ['21', '5', '96', '97', '6', '7', '13', '14', '17', '23']
 
@@ -255,7 +277,7 @@ if __name__ == "__main__":
 
     # handler.extract_all_events(3)
     # handler.cat_sort_uniq_lines()
-    handler.get_all_channels_programs()
-    handler.normalize_programs(TMP_PATH + '/original_unique_programs.txt', TMP_PATH + '/normalized_prorgams.txt')
-    handler.normalize_channels(TMP_PATH + '/original_unique_channels.txt', TMP_PATH + '/normalized_channels.txt')
+    # handler.get_all_channels_programs()
+    # handler.normalize_programs(TMP_PATH + '/original_unique_programs.txt', TMP_PATH + '/normalized_prorgams.txt')
+    # handler.normalize_channels(TMP_PATH + '/original_unique_channels.txt', TMP_PATH + '/normalized_channels.txt')
     # handler.classify_exist_channels(TMP_PATH + '/normalized_channels.txt')

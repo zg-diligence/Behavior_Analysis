@@ -1,3 +1,21 @@
+"""
+  Copyright(c) 2018 Gang Zhang
+  All rights reserved.
+  Author:Gang Zhang
+  Date:2018.02.01
+
+  Function:
+    Classify all programs by the follwing ways:
+        1.classify by gold programs
+            all gold programs are crawled from tv websites
+
+        2.classify by keywords
+            keywords are mainly defined in the file base_category.py
+
+        3.classify by channels
+            all channels are also defined in the file base_category.py
+"""
+
 import os, re
 import time, codecs
 from multiprocessing import Pool
@@ -11,10 +29,17 @@ from basic_category import classified_channels, sports_keywords, \
 DEBUG = True
 TMP_PATH = os.getcwd() + '/tmp_result'
 SCRAPY_PATH = TMP_PATH + '/scrapy_programs'
+RESULT_PATH = TMP_PATH + '/classified_result'
 EXTRACT_CHANNEL_PROGRAM = TMP_PATH + '/extract_channel_program'
 
 
 class Classifyer(object):
+    """
+    Function:
+        1. preprocess of channel and programs
+        2. classify all the programs for the first step
+    """
+
     def __init__(self):
         with codecs.open(TMP_PATH + '/BA_all_channels.txt', 'r', encoding='utf8') as fr:
             self.all_channels = [line.strip() for line in fr.readlines()]
@@ -33,7 +58,7 @@ class Classifyer(object):
         #  # remove program marks
         regexes.append(re.compile('.*(报复|反复|回复|修复)$'))
         regexes.append(re.compile('复$'))
-        regexes.append(re.compile('现场直播|实况录像'))
+        regexes.append(re.compile('现场直播|实况录像|免费'))
         regexes.append(re.compile('(中文版|英文版|回看|复播|重播|[上中下尾]|[ⅡⅢI]+)$'))
         regexes.append(re.compile('^(HD|3D|杜比)|(SD文广版|文广(遮标)*版|SD|HD|3D|TV|杜比|限免|done|out)$'))
 
@@ -107,8 +132,6 @@ class Classifyer(object):
         if not re.match(regexes[0], program):
             program = re.sub(regexes[1], '', program)
 
-
-
         # remove chinese garbled
         if re.search('[^(\w+\-)]', program):
             return None
@@ -142,6 +165,7 @@ class Classifyer(object):
         """
 
         keymap = {
+            '厨房':'美食',
             '美食': '美食',
             '电影': '电影',
             '院线': '电影',
@@ -176,7 +200,7 @@ class Classifyer(object):
             return '军事'
 
         res = re.search(
-            '剧场|影院|院线|美食|纪录片|纪实|动漫|动画|天气|新闻|儿歌|零频道|'
+            '剧场|影院|院线|美食|厨房|纪录片|纪实|动漫|动画|天气|新闻|儿歌|零频道|'
             '^(电视剧|电影|财经|凤凰|旅游|健康|健身|健美)', program)
         if res: return keymap[res.group()]
 
@@ -219,11 +243,13 @@ class Classifyer(object):
         correct_categories = ['电视剧', '纪实', '少儿', '电影', '综艺', '体育', '新闻',
                               '财经', '军事', '旅游', '少儿', '法制']
 
+        # find the best matched program
         handler = DistanceClassifyer()
         min_programs, min_distances = [], []
         for i in range(len(all_programs)):
             item, distance = handler.find_min_distance(program, all_programs[i])
-            if distance == 1.0: return correct_categories[i]
+            if distance == 1.0:
+                return correct_categories[i]
             min_programs.append(item)
             min_distances.append(distance)
 
@@ -286,10 +312,11 @@ class Classifyer(object):
 
     def classify_first(self):
         """
-        classify all programs for the first step
+        classify all programs for the first classifyer
         :return:
         """
 
+        # read original data from file
         all_programs = []
         all_channel_programs = []
         all_files = sorted(os.listdir(EXTRACT_CHANNEL_PROGRAM))
@@ -306,7 +333,7 @@ class Classifyer(object):
         classified_programs = []
         unclassify_programs = []
 
-        # extract all programs
+        # extract channel and programs
         for item in set(all_channel_programs):
             if not item: continue
             res = item.split('|')
@@ -341,6 +368,7 @@ class Classifyer(object):
         if DEBUG: print(len(classified_programs), len(unclassify_programs))
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
+        # classify all programs without channel
         pool = Pool(4)
         processes = []
         N = len(unclassify_programs) // 4 + 1
@@ -361,9 +389,11 @@ class Classifyer(object):
         if DEBUG: print(len(classified_programs), len(unclassify_programs))
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
+        # program in channel_programs may have been classified
         gold_programs = [program for _, program, _ in classified_programs]
         channel_programs = [item for item in channel_programs if item[0] not in gold_programs]
 
+        # classify programs with channel
         pool = Pool(4)
         processes = []
         N = len(channel_programs) // 4 + 1
@@ -383,13 +413,15 @@ class Classifyer(object):
         classified_programs =list(set(classified_programs + classified_by_channel))
         if DEBUG: print(len(classified_programs), len(unclassify_programs))
 
-        print(len(set([(program, category) for _, program, category in classified_programs])))
-        print(len(set([program for _, program, _ in classified_programs])))
+        # print debug info
+        if DEBUG:print(len(set([(program, category) for _, program, category in classified_programs])))
+        if DEBUG:print(len(set([program for _, program, _ in classified_programs])))
 
+        # write classified result into file
         classified_programs = sorted(classified_programs, key=lambda item: (item[0], item[2], item[1]))
-        with codecs.open(TMP_PATH + '/reclassify_programs_1.txt', 'w') as fw:
+        with codecs.open(RESULT_PATH + '/reclassify_programs_1.txt', 'w') as fw:
             fw.write('\n'.join(sorted(unclassify_programs)))
-        with codecs.open(TMP_PATH + '/all_programs_category_1.txt', 'w') as fw:
+        with codecs.open(RESULT_PATH + '/all_programs_category_1.txt', 'w') as fw:
             fw.write('\n'.join(['%s\t\t%s\t\t%s' % (a, c, b) for a, b, c in classified_programs]))
 
         return classified_programs, unclassify_programs
