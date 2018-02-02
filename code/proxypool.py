@@ -1,3 +1,13 @@
+"""
+  Copyright(c) 2018 Gang Zhang
+  All rights reserved.
+  Author:Gang Zhang
+  Date:2018.02.01
+
+  Function:
+    proxy manage for crawling
+"""
+
 from redis import Redis
 from random import choice
 from redis.connection import BlockingConnectionPool
