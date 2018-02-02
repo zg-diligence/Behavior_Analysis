@@ -202,7 +202,7 @@ class Classifyer(object):
         with codecs.open(SCRAPY_PATH + '/normalized_scrapy_电影.txt', 'r') as fr:
             all_programs.append([line.strip() for line in fr.readlines()])
 
-        categories = ['zongyi', 'tiyu', 'news', 'cai', 'junshi', 'lvyou', 'shaoer', 'fazhi', 'jiao']
+        categories = ['zongyi', 'tiyu', 'news', 'cai', 'junshi', 'lvyou', 'shaoer', 'fazhi']
         for category in categories:
             with codecs.open(SCRAPY_PATH + '/dianshiyan_' + category + '.txt', 'r') as fr:
                 all_programs.append([line.strip() for line in fr.readlines()])
@@ -216,15 +216,15 @@ class Classifyer(object):
         :return:
         """
 
-        correct_categories = ['电视剧', '纪实', '少儿', '电影', '综艺', '体育',
-                          '新闻', '财经', '军事', '旅游', '少儿', '法制', '科教']
+        correct_categories = ['电视剧', '纪实', '少儿', '电影', '综艺', '体育', '新闻',
+                              '财经', '军事', '旅游', '少儿', '法制']
 
         handler = DistanceClassifyer()
         min_programs, min_distances = [], []
         for i in range(len(all_programs)):
-            program, distance = handler.find_min_distance(program, all_programs[i])
+            item, distance = handler.find_min_distance(program, all_programs[i])
             if distance == 1.0: return correct_categories[i]
-            min_programs.append(program)
+            min_programs.append(item)
             min_distances.append(distance)
 
         min_distance = max(min_distances)

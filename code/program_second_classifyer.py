@@ -1,6 +1,6 @@
 import os, re, json
 import time, codecs
-from random import randint
+from random import randint, choice
 from multiprocessing import Pool, Manager
 
 import requests
@@ -10,9 +10,11 @@ from urllib.parse import quote
 from proxypool import ProxyPool
 from program_first_classifyer import Classifyer
 from basic_category import categories as all_categories
+from program_third_classifyer import DistanceClassifyer
 
 DEBUG = True
 TMP_PATH = os.getcwd() + '/tmp_result'
+SCRAPY_PATH = TMP_PATH + '/scrapy_programs'
 
 
 class Scrapyer(object):
@@ -200,6 +202,13 @@ class Scrapyer(object):
         while self.retry_count > 0:
             try:
                 content = requests.get(href, proxies={'http': self.proxy}, headers=self.headers, timeout=2)
+                if content.status_code != 200:
+                    self.retry_count -= 1
+                    if self.retry_count <= 0:
+                        if DEBUG: print("waiting...")
+                        self.change_proxy()
+                        self.retry_count = 3
+                    continue
                 bsObj = BeautifulSoup(content.text, 'html.parser')
                 break
             except:
@@ -210,29 +219,27 @@ class Scrapyer(object):
                     self.retry_count = 3
 
         try:
-            # variety category
-            res_1 = bsObj.find_all('td', class_='gray pl15')
-            if res_1:
-                category = res_1[0].findNext('td').get_text()
-                if category != "生活":
-                    category = self.category_classify(category)
-                    return category if category else '综艺'
-                div = bsObj.find_all('div', class_='clear more_c')[0]
-                intro = '; '.join([p.get_text() for p in div.find_all('p')])
-                return self.intro_classify(intro)
-
-            # TV category
-            res_2 = bsObj.find_all('span', class_='gray font18')
-            if res_2:
-                td = bsObj.findAll(text='类别：')[0].parent.findNext('td')
+            if re.search('tvcolumn', href):
+                res_1 = bsObj.find_all('td', class_='gray pl15')
+                if res_1:
+                    category = res_1[0].findNext('td').get_text()
+                    if category != "生活":
+                        category = self.category_classify(category)
+                        return category if category else '综艺'
+                    div = bsObj.find_all('div', class_='clear more_c')[0]
+                    intro = '; '.join([p.get_text() for p in div.find_all('p')])
+                    return self.intro_classify(intro)
+                else:
+                    return '综艺'
+            elif re.search('drama', href):
+                mark = bsObj.find(text='类别：')
+                td = mark.parent.findNext('td')
                 category = ' '.join([a.get_text() for a in td.find_all('a', recursive=False)])
                 category = self.category_classify(category)
                 return category if category else '电视剧'
-
-            # others
-            return '综艺'
         except:
-            return None
+            if DEBUG: print("fuck", href)
+            return choice(['综艺', '电视剧'])
 
     def run_search_to_classify_programs(self, source_items, lock):
         """
@@ -359,16 +366,75 @@ class PrefixClassifyer(object):
 
         return list(zip(prefixs, extracted_programs))
 
-    def crawl_to_search_prefixs(self, N=6):
+    def read_gold_programs(self):
+        """
+        read all crwaled programs from file
+        :return:
+        """
+
+        all_programs = []
+        with codecs.open(SCRAPY_PATH + '/normalized_scrapy_电视剧.txt', 'r') as fr:
+            all_programs.append([line.strip() for line in fr.readlines()])
+        with codecs.open(SCRAPY_PATH + '/normalized_documentary.txt', 'r') as fr:
+            all_programs.append([line.strip() for line in fr.readlines()])
+        with codecs.open(SCRAPY_PATH + '/normalized_scrapy_动漫.txt', 'r') as fr:
+            all_programs.append([line.strip() for line in fr.readlines()])
+
+        categories = ['zongyi', 'tiyu', 'news', 'cai', 'junshi', 'lvyou', 'shaoer', 'fazhi']
+        for category in categories:
+            with codecs.open(SCRAPY_PATH + '/dianshiyan_' + category + '.txt', 'r') as fr:
+                all_programs.append([line.strip() for line in fr.readlines()])
+        return all_programs
+
+    def classify_by_gold_programs(self, prefix_programs):
+        """
+        classify program by programs crawled from tv websites
+        :param prefix_programs:
+        :return:
+        """
+
+        all_programs = self.read_gold_programs()
+        correct_categories = ['电视剧', '纪实', '少儿', '综艺', '体育',
+                          '新闻', '财经', '军事', '旅游', '少儿', '法制']
+
+        classified_programs = []
+        classified_prefixs = []
+        handler = DistanceClassifyer()
+        class getoutofloop(Exception): pass
+        for prefix, programs in prefix_programs:
+            flag = False
+            min_programs, min_distances = [], []
+            try:
+                for i in range(len(all_programs)):
+                    program, distance = handler.find_min_distance(prefix, all_programs[i])
+                    if distance == 1.0:
+                        category = correct_categories[i]
+                        classified_prefixs.append(prefix)
+                        for program in programs:
+                            classified_programs.append(('1prefix', program, category))
+                        flag = True
+                        raise getoutofloop
+                    min_programs.append(program)
+                    min_distances.append(distance)
+            except getoutofloop:
+                pass
+
+            if not flag:
+                min_distance = max(min_distances)
+                if min_distance > 0.93:
+                    category = correct_categories[min_distances.index(min_distance)]
+                    classified_prefixs.append(prefix)
+                    for program in programs:
+                        classified_programs.append(('1prefix', program, category))
+        return classified_prefixs, classified_programs
+
+    def crawl_to_search_prefixs(self, programs, N=6):
         """
         crawl relative programs info from xingchen
         :return:
         """
 
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-
-        with codecs.open(TMP_PATH + '/prefix_programs.txt', 'r') as fr:
-            programs = [line.strip() for line in fr.readlines()]
 
         global empty_times
         empty_times = dict(zip(programs, [0 for _ in range(len(programs))]))
@@ -404,12 +470,111 @@ class PrefixClassifyer(object):
 
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
+    # def find_best_matched(self, program, collected_programs):
+    #     """
+    #     find best matched program from the collected programs
+    #     1, 2 call classify_xinchen_category
+    #     3, already can be classified;
+    #     4, craw detail info to classify
+    #     :param program: source program
+    #     :param collected_programs:
+    #     :return:
+    #     """
+    #
+    #     zongyi, tv, movie, sport, star = None, None, None, None, None
+    #     for item in collected_programs.items():
+    #         if item[0][:2] == '综艺':
+    #             zongyi = item[1]
+    #         elif item[0][:3] == '电视剧':
+    #             tv = item[1]
+    #         elif item[0][:2] == '电影':
+    #             movie = item[1]
+    #         elif item[0][:2] == '赛事':
+    #             sport = item[1]
+    #         elif item[0][:2] == '明星':
+    #             star = item[1]
+    #     tmp_programs = []
+    #     if zongyi: tmp_programs.append(('综艺', zongyi))
+    #     if tv: tmp_programs.append(('电视剧', tv))
+    #     if movie: tmp_programs.append(('电影', movie))
+    #     if sport: tmp_programs.append(('体育', sport))
+    #     if star: tmp_programs.append(('综艺', star))
+    #
+    #     classify = Classifyer()
+    #     for column, programs in tmp_programs:
+    #         for href, name in programs:
+    #             res = classify.preprocess_program(name)
+    #             if res == program:
+    #                 return 1, column, href, res
+    #
+    #     for column, programs in tmp_programs:
+    #         for href, name in programs:
+    #             if re.search('^%s|%s$' % (program, program), name):
+    #                 return 2, column, href, name
+    #
+    #     if len(tmp_programs) == 1:
+    #         if tmp_programs[0][0] == '赛事': return 3, '体育', None, None
+    #         if tmp_programs[0][0] == '明星': return 3, '综艺', None, None
+    #         if tmp_programs[0][0] == '电影': return 3, '电影', None, None
+    #         if re.search('^(电视剧|综艺)', tmp_programs[0][0]):
+    #             href = tmp_programs[0][1][0][0]  # 待定
+    #             name = tmp_programs[0][1][0][1]  # 待定
+    #             return 4, tmp_programs[0][0], href, name
+    #
+    #     return None
+    #
+    # def classify_xinchen_category(self, column):
+    #     """
+    #     classify program roughly by the xingchen column
+    #     :param column:
+    #     :return:
+    #     """
+    #
+    #     if re.search('^电影', column): return '电影'
+    #     if re.search('^赛事', column): return '体育'
+    #     if re.search('^明星', column): return '综艺'
+    #     return "继续"
+
+    # def check_to_classify_programs(self):
+    #     """
+    #     classify part of the programs by check program column in xingchen
+    #     :return: recrawl programs: need to cral more detail information
+    #              classified programs: already can be classified
+    #              unclassified: bad matched result, unable to classify
+    #     """
+    #
+    #     with codecs.open(TMP_PATH + '/xingchen_collected_programs.txt', 'r') as fr:
+    #         enable_results = [json.loads(line.strip()) for line in fr]
+    #
+    #     recrawl_programs = []
+    #     classified_programs = []
+    #     unclassified_programs = []
+    #     for result in enable_results:
+    #         for program, collected_programs in result.items():
+    #             res = self.find_best_matched(program, collected_programs)
+    #             if not res:
+    #                 unclassified_programs.append(program)
+    #                 continue
+    #
+    #             if res[0] == 3:
+    #                 classified_programs.append((program, res[1]))
+    #                 continue
+    #
+    #             if res[0] == 4:
+    #                 recrawl_programs.append((program, res[1], res[2]))
+    #                 continue
+    #
+    #             category = self.classify_xinchen_category(res[1])
+    #             if category == '继续':
+    #                 recrawl_programs.append((program, res[1], res[2]))
+    #             else:
+    #                 classified_programs.append((program, category))
+    #     return recrawl_programs, classified_programs, unclassified_programs
+
     def find_best_matched(self, program, collected_programs):
         """
         find best matched program from the collected programs
         1, 2 call classify_xinchen_category
-        3, already can be classified;
-        4, craw detail info to classify
         :param program: source program
         :param collected_programs:
         :return:
@@ -421,18 +586,10 @@ class PrefixClassifyer(object):
                 zongyi = item[1]
             elif item[0][:3] == '电视剧':
                 tv = item[1]
-            elif item[0][:2] == '电影':
-                movie = item[1]
-            elif item[0][:2] == '赛事':
-                sport = item[1]
-            elif item[0][:2] == '明星':
-                star = item[1]
+
         tmp_programs = []
         if zongyi: tmp_programs.append(('综艺', zongyi))
         if tv: tmp_programs.append(('电视剧', tv))
-        if movie: tmp_programs.append(('电影', movie))
-        if sport: tmp_programs.append(('体育', sport))
-        if star: tmp_programs.append(('综艺', star))
 
         classify = Classifyer()
         for column, programs in tmp_programs:
@@ -441,33 +598,21 @@ class PrefixClassifyer(object):
                 if res == program:
                     return 1, column, href, res
 
+        handler = DistanceClassifyer()
+        min_column, min_name, min_href, min_distance = '', '', '', 0
         for column, programs in tmp_programs:
-            for href, name in programs:
-                if re.search('^%s|%s$' % (program, program), name):
-                    return 2, column, href, name
+            items = [pro for _, pro in programs]
+            name, distance = handler.find_min_distance(program, items)
+            if distance > min_distance:
+                min_name = name
+                min_column = column
+                min_distance = distance
+                min_href = programs[items.index(name)][0]
 
-        if len(tmp_programs) == 1:
-            if tmp_programs[0][0] == '赛事': return 3, '体育', None, None
-            if tmp_programs[0][0] == '明星': return 3, '综艺', None, None
-            if tmp_programs[0][0] == '电影': return 3, '电影', None, None
-            if re.search('^(电视剧|综艺)', tmp_programs[0][0]):
-                href = tmp_programs[0][1][0][0]  # 待定
-                name = tmp_programs[0][1][0][1]  # 待定
-                return 4, tmp_programs[0][0], href, name
-
+        if min_distance > 0.93:
+            # print(min_column, program, min_name)
+            return 2, min_column, min_href, min_name
         return None
-
-    def classify_xinchen_category(self, column):
-        """
-        classify program roughly by the xingchen column
-        :param column:
-        :return:
-        """
-
-        if re.search('^电影', column): return '电影'
-        if re.search('^赛事', column): return '体育'
-        if re.search('^明星', column): return '综艺'
-        return "继续"
 
     def check_to_classify_programs(self):
         """
@@ -481,7 +626,6 @@ class PrefixClassifyer(object):
             enable_results = [json.loads(line.strip()) for line in fr]
 
         recrawl_programs = []
-        classified_programs = []
         unclassified_programs = []
         for result in enable_results:
             for program, collected_programs in result.items():
@@ -489,21 +633,8 @@ class PrefixClassifyer(object):
                 if not res:
                     unclassified_programs.append(program)
                     continue
-
-                if res[0] == 3:
-                    classified_programs.append((program, res[1]))
-                    continue
-
-                if res[0] == 4:
-                    recrawl_programs.append((program, res[1], res[2]))
-                    continue
-
-                category = self.classify_xinchen_category(res[1])
-                if category == '继续':
-                    recrawl_programs.append((program, res[1], res[2]))
-                else:
-                    classified_programs.append((program, category))
-        return recrawl_programs, classified_programs, unclassified_programs
+                recrawl_programs.append((program, res[1], res[2]))
+        return recrawl_programs, unclassified_programs
 
     def crawl_to_classify_programs(self, deep_crawl_programs, N=6):
         """
@@ -530,29 +661,12 @@ class PrefixClassifyer(object):
             classified_results += p.get()
         return classified_results
 
-    def classify_second(self):
+    def classify_second(self, prefix_programs):
         """
         read prefixs crawled result and classify the relative programs
+        :param prefix_programs
         :return:
         """
-
-        with open(TMP_PATH + '/prefix_lists.txt', 'r') as fr:
-            items = [line.strip() for line in fr.readlines()]
-
-            groups, group = [], []
-            for item in items:
-                if item:
-                    group.append(item)
-                else:
-                    groups.append(group)
-                    group = []
-
-            keymaps = []
-            for group in groups:
-                prefix = group[0].split(':')[1]
-                programs = group[1:]
-                keymaps.append((prefix, programs))
-            keymaps = dict(keymaps)
 
         with open(TMP_PATH + '/prefix_classified_result.txt', 'r') as fr:
             items = [line.strip() for line in fr.readlines()]
@@ -560,16 +674,17 @@ class PrefixClassifyer(object):
             prefix_categories = dict(prefix_categories)
 
         classified_programs = []
-        for prefix, programs in keymaps.items():
+        for prefix, programs in prefix_programs:
             category = prefix_categories.get(prefix, 'None')
             if category == 'None': continue
             for program in programs:
-                classified_programs.append(('3prefix',  program, category))
+                classified_programs.append(('2prefix',  program, category))
         return classified_programs
 
-    def merge_classify_prefix(self):
+    def merge_classify_prefix(self, prefix_classified):
         """
         merge the classified result from class_programs.py
+        :param prefix_classified
         :return:
         """
 
@@ -581,7 +696,6 @@ class PrefixClassifyer(object):
             unclassify_programs = [line.strip() for line in fr.readlines()]
 
         unclassify_programs = set(unclassify_programs)
-        prefix_classified = self.classify_second()
         classified_programs += prefix_classified
         unclassify_programs -= set([program for _, program, _ in prefix_classified])
         classified_programs = set(classified_programs)
@@ -600,13 +714,18 @@ class PrefixClassifyer(object):
 if __name__ == '__main__':
     handler = PrefixClassifyer()
 
-    handler.search_common_prefix()
-    # handler.crawl_to_search_prefixs()
+    prefix_programs = handler.search_common_prefix()
+    matched_prefixs, classified_programs = handler.classify_by_gold_programs(prefix_programs)
+    prefix_programs = [item for item in prefix_programs if not item[0] in matched_prefixs]
+
+    # print('\n'.join([str(item) for item in classified_programs]))
+    # prefixs_to_search = list(set(list(dict(prefix_programs).keys()))-set(matched_prefixs))
+    # handler.crawl_to_search_prefixs(prefixs_to_search)
+    #
     # res_2 = handler.check_to_classify_programs()
-    # res_3 = handler.crawl_to_classify_programs(res_2[0])
-    # classified_result = res_2[1] + res_3
+    # classified_result = handler.crawl_to_classify_programs(res_2[0])
     # with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
     #     fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
 
-    # handler.classify_second()
-    # handler.merge_classify_prefix()
+    classified_programs += handler.classify_second(prefix_programs)
+    handler.merge_classify_prefix(classified_programs)

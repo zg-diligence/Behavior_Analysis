@@ -285,7 +285,7 @@ class Scrapyer(object):
         for name, programs in zip(categories, all_programs):
             print(name, programs)
             with codecs.open(SCRAPY_PATH + '/dianshiyan_' + name + '.txt', 'w') as fw:
-                fw.write('\n'.join(programs))
+                fw.write('\n'.join(sorted(programs)))
 
 
 if __name__ == '__main__':
