@@ -1,4 +1,5 @@
 .idea/*
 files/*
 *.zip
+*.log
 __pycache__/*
