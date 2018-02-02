@@ -1,67 +1,18 @@
 import os, re, json
 import time, codecs
-from random import randint, choice
+from random import randint
 from multiprocessing import Pool, Manager
 
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import quote
 
-from redis import Redis
-from redis.connection import BlockingConnectionPool
-
+from proxypool import ProxyPool
 from program_first_classifyer import Classifyer
 from basic_category import categories as all_categories
 
 DEBUG = True
 TMP_PATH = os.getcwd() + '/tmp_result'
-
-
-class ProxyPool(object):
-    def __init__(self):
-        self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/'
-                    '537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'}
-
-    def get_proxy(self):
-        """
-        get a new proxy from proxy pool
-        :return:
-        """
-
-        session = Redis(connection_pool=BlockingConnectionPool(host='localhost', port=6379))
-        while True:
-            try:
-                proxies = list(session.hgetall('useful_proxy').keys())
-                new_proxy = choice(proxies).decode('utf8')
-                break
-            except:
-                pass
-        return new_proxy
-
-    def delete_proxy(self, proxy):
-        """
-        delete the given proxy from proxy pool
-        :param proxy:
-        :return:
-        """
-
-        session = Redis(connection_pool=BlockingConnectionPool(host='localhost', port=6379))
-        session.hdel('useful_proxy', proxy)
-
-    def change_proxy(self):
-        """
-        change current proxy
-        :return:
-        """
-
-        # from urllib.request import ProxyHandler, build_opener, install_opener
-        # if self.proxy:
-        #     self.delete_proxy(self.proxy)
-        # self.proxy = self.get_proxy()
-        # proxy_support = ProxyHandler({'http': self.proxy})
-        # opener = build_opener(proxy_support)
-        # opener.addheaders = [('User-Agent', self.headers['User-Agent'])]
-        # install_opener(opener)
 
 
 class Scrapyer(object):
@@ -304,7 +255,7 @@ class Scrapyer(object):
                 return program_cateogry
 
 
-class PrefixClassifier(object):
+class PrefixClassifyer(object):
     def __init__(self):
         self.scrapyer = Scrapyer()
 
@@ -365,7 +316,7 @@ class PrefixClassifier(object):
         :return:prefix_programs.txt prefix_lists.txt
         """
 
-        with codecs.open(TMP_PATH + '/reclassify_programs.txt', 'r') as fr:
+        with codecs.open(TMP_PATH + '/reclassify_programs_1.txt', 'r') as fr:
             programs = [line.strip() for line in fr.readlines()]
 
         prefixs, extracted_programs = [], []
@@ -379,25 +330,19 @@ class PrefixClassifier(object):
             if prefix:
                 res_4 = self.get_best_prefix(programs, prefix, pre, cur, min_length=N)
                 res_3 = self.get_best_prefix(programs, prefix, pre, cur, min_length=N-1)
-                # res_2 = self.get_best_prefix(programs, prefix, pre, cur, min_length=N-2)
                 res = res_4
                 if len(res_3[3]) - len(res_4[3]) >= 5:
                     res = res_3
-                    # if len(res_2[3]) - len(res_3[3]) >= threadhold:
-                    #     res = res_2
-                pre, cur = res[1], res[2]
-                if res[0]:
-                    prefixs.append(res[0])
-                    extracted_programs.append(res[3])
+                if len(res[3]) >= 4:
+                    if not re.search('^(CCTV|unit)|的$', prefix):
+                        pre, cur = res[1], res[2]
+                        prefixs.append(res[0])
+                        extracted_programs.append(res[3])
             pre, cur = cur, cur + 1
 
         # normalize the prefixs
         handled_prefixs = []
         for prefix in prefixs:
-            if re.search('的$', prefix):
-                extracted_programs.pop(prefixs.index(prefix))
-                continue
-
             res = prefix
             if re.search('\D\D(\d{1,2}|之)$', prefix):
                 res = re.sub('(\d{1,2}|之)$', '', prefix)
@@ -411,6 +356,8 @@ class PrefixClassifier(object):
             for prefix, programs in zip(prefixs, extracted_programs):
                 fw.write('The prefix:' + prefix + '\n')
                 fw.write('\n'.join(programs) + '\n\n')
+
+        return list(zip(prefixs, extracted_programs))
 
     def crawl_to_search_prefixs(self, N=6):
         """
@@ -626,11 +573,11 @@ class PrefixClassifier(object):
         :return:
         """
 
-        with open(TMP_PATH + '/all_programs_category.txt', 'r') as fr:
+        with open(TMP_PATH + '/all_programs_category_1.txt', 'r') as fr:
             items = [line.strip() for line in fr.readlines()]
             classified_programs = [item.split('\t\t') for item in items]
             classified_programs = [(a, c, b) for a, b, c in classified_programs]
-        with open(TMP_PATH + '/reclassify_programs.txt', 'r') as fr:
+        with open(TMP_PATH + '/reclassify_programs_1.txt', 'r') as fr:
             unclassify_programs = [line.strip() for line in fr.readlines()]
 
         unclassify_programs = set(unclassify_programs)
@@ -651,15 +598,15 @@ class PrefixClassifier(object):
 
 
 if __name__ == '__main__':
-    handler = PrefixClassifier()
+    handler = PrefixClassifyer()
 
+    handler.search_common_prefix()
     # handler.crawl_to_search_prefixs()
-    res_2 = handler.check_to_classify_programs()
-    res_3 = handler.crawl_to_classify_programs(res_2[0])
-    classified_result = res_2[1] + res_3
-    with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
-        fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
+    # res_2 = handler.check_to_classify_programs()
+    # res_3 = handler.crawl_to_classify_programs(res_2[0])
+    # classified_result = res_2[1] + res_3
+    # with codecs.open(TMP_PATH + '/prefix_classified_result.txt', 'w') as fw:
+    #     fw.write('\n'.join(sorted(['\t'.join(item) for item in classified_result])))
 
-    # handler.search_common_prefix()
     # handler.classify_second()
     # handler.merge_classify_prefix()

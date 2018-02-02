@@ -13,6 +13,33 @@ class Scrapyer(object):
     def __init__(self):
         pass
 
+    def crawl_documentary(self):
+        programs = []
+
+        for page in range(1, 31):
+            aiqiyi_url = 'http://list.iqiyi.com/www/3/-------------4-%d--iqiyi-1-.html' % page
+            if DEBUG: print('enter ', aiqiyi_url)
+            html = urlopen(aiqiyi_url)
+            bsObj = BeautifulSoup(html, 'html.parser')
+            ul = bsObj.find_all('ul', class_='site-piclist site-piclist-180236 site-piclist-auto')[0]
+            lis = ul.find_all('li', recursive=False)
+            for li in lis:
+                item = li.find('p', class_='site-piclist_info_title').a
+                programs.append(item.get_text())
+
+        for page in range(1, 31):
+            youku_url = 'http://list.youku.com/category/show/c_84_s_1_d_1_p_%d.html?spm=a2h1n.8251845.0.0' % page
+            if DEBUG: print('enter ', youku_url)
+            html = urlopen(youku_url)
+            bsObj = BeautifulSoup(html, 'html.parser')
+            lis = bsObj.find_all('li', class_='yk-col4 mr1')
+            for li in lis:
+                item = li.find('li', class_='title').a
+                programs.append(item.get_text())
+
+        with codecs.open(SCRAPY_PATH + '/documentary.txt', 'w') as fw:
+            fw.write('\n'.join(sorted(set(programs))))
+
     def crawl_aiqiyi_program(self, category_num, des_file):
         """
         crawl programs from aiyiqi by category
@@ -212,6 +239,54 @@ class Scrapyer(object):
             des_path = SCRAPY_PATH + '/normalized_scrapy_' + category + '.txt'
             handler.normalize_programs(src_path, des_path)
 
+        src_path = SCRAPY_PATH + '/documentary.txt'
+        des_path = SCRAPY_PATH + '/normalized_documentary.txt'
+        handler.normalize_programs(src_path, des_path)
+
+    def crawl_dianshiyan_programs(self, index, category):
+        """
+        crawl programs from dianshiyan
+        :param index:
+        :param category:
+        :return:
+        """
+
+        url = 'http://www.tvyan.com/show/%s/list_%d_1.html' % (category, index)
+        html = urlopen(url)
+        bsObj = BeautifulSoup(html, 'html.parser')
+        page_list = bsObj.find('ul', class_='pagelist')
+        tmp_lis = page_list.find_all('li', recursive=False)
+        page_num = len(tmp_lis) - 4 if len(tmp_lis) > 4 else 1
+
+        programs = []
+        for page in range(1, page_num+1):
+            url = 'http://www.tvyan.com/show/%s/list_%d_%d.html' % (category, index, page)
+            html = urlopen(url)
+            bsObj = BeautifulSoup(html, 'html.parser')
+            ul = bsObj.find('ul', class_='tv')
+            lis = ul.find_all('li', recursive=False)
+            programs += [li.span.a.get_text() for li in lis]
+        return programs
+
+    def crawl_programs_from_dianshiyan(self):
+        """
+        crawl programs from dianshiyan
+        :return:
+        """
+
+        numbers = [50, 51, 52, 53, 59, 57, 58, 54, 56, 55]
+        categories = ['zongyi','tiyu', 'news', 'cai', 'fangtan',
+                    'junshi', 'lvyou', 'shaoer', 'fazhi', 'jiao']
+
+        all_programs = []
+        for index, category in zip(numbers, categories):
+            all_programs.append(self.crawl_dianshiyan_programs(index, category))
+
+        for name, programs in zip(categories, all_programs):
+            print(name, programs)
+            with codecs.open(SCRAPY_PATH + '/dianshiyan_' + name + '.txt', 'w') as fw:
+                fw.write('\n'.join(programs))
+
 
 if __name__ == '__main__':
     handler = Scrapyer()
@@ -222,3 +297,7 @@ if __name__ == '__main__':
     # handler.scrapy_programs_from_youku()
     # handler.scrapy_programs_from_tencent()
     # handler.scrapy_programs_from_xingchen()
+    # handler.crawl_documentary()
+    # handler.normalize_scrapy_programs()
+
+    handler.crawl_programs_from_dianshiyan()

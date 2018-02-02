@@ -1,10 +1,12 @@
-import os
-import re
-import codecs
+import os, re
+import time, codecs
+from multiprocessing import Pool
 from string import punctuation as env_punc
 from zhon.hanzi import punctuation as chs_punc
 
-from basic_category import classified_channels, sports_keywords, drama_keywords
+from program_third_classifyer import DistanceClassifyer
+from basic_category import classified_channels, sports_keywords, \
+    drama_keywords, education_keywords, music_keywords, military_keywords
 
 DEBUG = True
 TMP_PATH = os.getcwd() + '/tmp_result'
@@ -14,7 +16,7 @@ EXTRACT_CHANNEL_PROGRAM = TMP_PATH + '/extract_channel_program'
 
 class Classifyer(object):
     def __init__(self):
-        with codecs.open('BA_all_channels.txt', 'r', encoding='utf8') as fr:
+        with codecs.open(TMP_PATH + '/BA_all_channels.txt', 'r', encoding='utf8') as fr:
             self.all_channels = [line.strip() for line in fr.readlines()]
 
     def regex_for_normalize_programs(self):
@@ -142,6 +144,8 @@ class Classifyer(object):
         keymap = {
             '美食': '美食',
             '电影': '电影',
+            '院线': '电影',
+            '影院': '电影',
             '财经': '财经',
             '旅游': '旅游',
             '剧场': '电视剧',
@@ -150,41 +154,31 @@ class Classifyer(object):
             '凤凰': '新闻',
             '纪录片': '纪实',
             '纪实': '纪实',
-            '军事': '军事',
-            '军情': '军事',
-            '军旅': '军事',
-            '军营': '军事',
-            '军民': '军事',
             '健康': '健康',
             '健身': '健康',
             '健美': '健康',
             '动漫': '少儿',
             '动画': '少儿',
-            '天气预报': '生活',
-            '歌曲': '音乐',
-            '金曲': '音乐',
-            'MV': '音乐',
-            'mv': '音乐',
-            '音乐榜': '音乐',
-            '音乐流行榜': '音乐',
-            '影院': '电影',
-            '院线': '电影',
-            '海军': '军事',
-            '陆军': '军事',
-            '空军': '军事',
-            '二战': '二战',
+            '儿歌': '少儿',
+            '天气': '生活',
             '零频道': '其它',
-        }
-
-        res = re.search(
-            'MV|mv|金曲|音乐(流行)*榜|剧场|影院|院线|美食|纪录片|纪实|动漫|动画|天气预报|新闻|歌曲|零频道|海军|陆军|空军|二战|军事|军情|军旅|军营|军民|'
-            '^(电视剧|电影|财经|凤凰|旅游|健康|健身|健美)', program)
-        if res: return keymap[res.group()]
+            }
 
         if re.search(sports_keywords, program):
             return "体育"
         if re.search(drama_keywords, program):
             return "戏曲"
+        if re.search(education_keywords, program):
+            return '科教'
+        if re.search(music_keywords, program):
+            return '音乐'
+        if re.search(military_keywords, program):
+            return '军事'
+
+        res = re.search(
+            '剧场|影院|院线|美食|纪录片|纪实|动漫|动画|天气|新闻|儿歌|零频道|'
+            '^(电视剧|电影|财经|凤凰|旅游|健康|健身|健美)', program)
+        if res: return keymap[res.group()]
 
         file_path = TMP_PATH + '/keyword_entertainment.txt'
         regex = '|'.join([star.strip() for star in open(file_path, 'r').readlines()])
@@ -192,37 +186,103 @@ class Classifyer(object):
             return '综艺'
         return None
 
-    def classify_by_crawled_programs(self, unclassify_programs):
+    def read_gold_programs(self):
         """
-        classify program by programs crawled from tv websites
-        :param unclassify_programs:
+        read all crwaled programs from file
         :return:
         """
 
-        with codecs.open(SCRAPY_PATH + '/normalized_scrapy_电影.txt', 'r') as fr:
-            scrapy_movie_programs = set([line.strip() for line in fr.readlines()])
+        all_programs = []
         with codecs.open(SCRAPY_PATH + '/normalized_scrapy_电视剧.txt', 'r') as fr:
-            scrapy_tv_programs = set([line.strip() for line in fr.readlines()])
+            all_programs.append([line.strip() for line in fr.readlines()])
+        with codecs.open(SCRAPY_PATH + '/normalized_documentary.txt', 'r') as fr:
+            all_programs.append([line.strip() for line in fr.readlines()])
         with codecs.open(SCRAPY_PATH + '/normalized_scrapy_动漫.txt', 'r') as fr:
-            scrapy_cartoon_programs = set([line.strip() for line in fr.readlines()])
+            all_programs.append([line.strip() for line in fr.readlines()])
+        with codecs.open(SCRAPY_PATH + '/normalized_scrapy_电影.txt', 'r') as fr:
+            all_programs.append([line.strip() for line in fr.readlines()])
 
-        # 需要改进匹配算法
+        categories = ['zongyi', 'tiyu', 'news', 'cai', 'junshi', 'lvyou', 'shaoer', 'fazhi', 'jiao']
+        for category in categories:
+            with codecs.open(SCRAPY_PATH + '/dianshiyan_' + category + '.txt', 'r') as fr:
+                all_programs.append([line.strip() for line in fr.readlines()])
+        return all_programs
+
+    def classify_by_gold_programs(self, program, all_programs):
+        """
+        classify program by programs crawled from tv websites
+        :param program:
+        :param all_programs
+        :return:
+        """
+
+        correct_categories = ['电视剧', '纪实', '少儿', '电影', '综艺', '体育',
+                          '新闻', '财经', '军事', '旅游', '少儿', '法制', '科教']
+
+        handler = DistanceClassifyer()
+        min_programs, min_distances = [], []
+        for i in range(len(all_programs)):
+            program, distance = handler.find_min_distance(program, all_programs[i])
+            if distance == 1.0: return correct_categories[i]
+            min_programs.append(program)
+            min_distances.append(distance)
+
+        min_distance = max(min_distances)
+        if min_distance > 0.93:
+            return correct_categories[min_distances.index(min_distance)]
+        return None
+
+    def classify_programs(self, programs):
+        """
+        classify programs without channel
+        :param programs:
+        :return:
+        """
+
         classified_programs = []
-        unclassify_programs = set(unclassify_programs)
+        unclassify_programs = []
 
-        intersection_1 = set.intersection(unclassify_programs, scrapy_tv_programs)
-        classified_programs += [('2None', program, '电视剧') for program in intersection_1]
-        unclassify_programs -= intersection_1
+        count = 0
+        programs = list(set(programs))
+        gold_programs = self.read_gold_programs()
+        for program in programs:
+            count += 1
+            if count % 500 == 0:
+                rate = int(count/len(programs)*100)
+                if DEBUG: print(os.getpid(), '=>', '%d%%'%rate)
 
-        intersection_2 = set.intersection(unclassify_programs, scrapy_movie_programs)
-        classified_programs += [('2None', program, '电影') for program in intersection_2]
-        unclassify_programs -= intersection_2
+            # classified by crawled programs
+            category = self.classify_by_gold_programs(program, gold_programs)
+            if category:
+                classified_programs.append(('2None', program, category))
+                continue
 
-        intersection_3 = set.intersection(unclassify_programs, scrapy_cartoon_programs)
-        classified_programs += [('2None', program, '少儿') for program in intersection_3]
-        unclassify_programs -= intersection_3
+            # classify by keywords
+            category = self.classify_by_keywords(program)
+            if category:
+                classified_programs.append(('1None', program, category))
+                continue
 
+            # can not be classified
+            unclassify_programs.append(program)
         return classified_programs, unclassify_programs
+
+    def classify_channel_programs(self, channel_programs):
+        """
+        classify programs with channel
+        :param channel_programs:
+        :return:
+        """
+
+        classified_by_channel = []
+        channel_programs = set(channel_programs)
+        for program, channel in set(channel_programs):
+            if not channel: continue
+            category = self.classify_by_channel(channel)
+            if not re.search('再分类|ERROR', category):
+                classified_by_channel.append((channel, program, category))
+                continue
+        return classified_by_channel
 
     def classify_first(self):
         """
@@ -242,28 +302,11 @@ class Classifyer(object):
                 else:
                     all_channel_programs += [line.strip() for line in set(fr.readlines()) if line.strip()]
 
+        channel_programs = []
         classified_programs = []
         unclassify_programs = []
 
-        # classify programs without channel
-        for item in set(all_programs):
-            program = self.preprocess_program(item)
-            if not program: continue
-            if re.match('^\d+-.*-.*$', item):
-                classified_programs.append(('1None', program, '音乐'))
-                continue
-
-            category = self.classify_by_keywords(program)
-            if not category:
-                unclassify_programs.append(program)
-            else:
-                classified_programs.append(('1None', program, category))
-        classified_programs = list(set(classified_programs))
-        unclassify_programs = list(set(unclassify_programs))
-        if DEBUG: print(len(classified_programs), len(unclassify_programs))
-
-        # classify programs with channel
-        classified_by_channel = []
+        # extract all programs
         for item in set(all_channel_programs):
             if not item: continue
             res = item.split('|')
@@ -271,60 +314,82 @@ class Classifyer(object):
             channel, program = res
             if not program: continue
 
-            channel = self.preprocess_channel(channel)
-            origin_program = program
-            program = self.preprocess_program(program)
-            if not program: continue
-            if re.match('^\d+-.*-.*$', origin_program):
+            # music
+            if re.match('^\d+-.*-.*$', item):
                 classified_programs.append(('1None', program, '音乐'))
                 continue
 
-            # classify by keywords
-            category = self.classify_by_keywords(program)
-            if category:
-                classified_programs.append(('1None', program, category))
-                continue
-
-            # classify by channel
-            if not channel: unclassify_programs.append(program)
-            category = self.classify_by_channel(channel)
-            if not re.search('再分类|ERROR', category) and program:
-                classified_by_channel.append((channel, program, category))
-                continue
-
-            # can not be classified
+            program = self.preprocess_program(program)
+            if not program: continue
+            channel = self.preprocess_channel(channel)
             unclassify_programs.append(program)
+            channel_programs.append((program, channel))
+
+        for item in set(all_programs):
+            program = self.preprocess_program(item)
+            if not program: continue
+
+            # music
+            if re.match('^\d+-.*-.*$', item):
+                classified_programs.append(('1None', program, '音乐'))
+                continue
+            unclassify_programs.append(program)
+
+        channel_programs = list(set(channel_programs))
         classified_programs = list(set(classified_programs))
         unclassify_programs = list(set(unclassify_programs))
         if DEBUG: print(len(classified_programs), len(unclassify_programs))
+        if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
+        pool = Pool(4)
+        processes = []
+        N = len(unclassify_programs) // 4 + 1
+        for i in range(4):
+            items = unclassify_programs[i*N: i*N+N]
+            processes.append(pool.apply_async(self.classify_programs, (items, )))
+        pool.close()
+        pool.join()
+
+        unclassify_programs = []
+        for p in processes:
+            res = p.get()
+            classified_programs += res[0]
+            unclassify_programs += res[1]
+
+        classified_programs = list(set(classified_programs))
+        unclassify_programs = list(set(unclassify_programs))
+        if DEBUG: print(len(classified_programs), len(unclassify_programs))
+        if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+
+        gold_programs = [program for _, program, _ in classified_programs]
+        channel_programs = [item for item in channel_programs if item[0] not in gold_programs]
+
+        pool = Pool(4)
+        processes = []
+        N = len(channel_programs) // 4 + 1
+        for i in range(4):
+            items = channel_programs[i * N: i * N + N]
+            processes.append(pool.apply_async(self.classify_channel_programs, (items,)))
+        pool.close()
+        pool.join()
+
+        classified_by_channel = []
+        for p in processes:
+            res = p.get()
+            classified_by_channel += res
 
         programs = set([program for _, program, _ in classified_by_channel])
         unclassify_programs = list(set(unclassify_programs) - programs)
         classified_programs =list(set(classified_programs + classified_by_channel))
         if DEBUG: print(len(classified_programs), len(unclassify_programs))
 
-        # classify by crawled programs
-        classified_by_crawled, unclassify_programs = self.classify_by_crawled_programs(unclassify_programs)
-        classified_programs = list(set(classified_programs + classified_by_crawled))
-        if DEBUG: print(len(classified_programs), len(unclassify_programs))
-
-        tmp_programs = [program for _, program, _ in classified_programs]
-        reclassified, _ = self.classify_by_crawled_programs(tmp_programs)
-        reclassified = dict([(program, category) for _, program, category in reclassified])
-        for i in range(len(classified_programs)):
-            program = classified_programs[i][1]
-            if program in list(reclassified.keys()):
-                classified_programs[i] = ('2None', program, reclassified[program])
-        classified_programs = set(classified_programs)
-        if DEBUG: print(len(classified_programs), len(unclassify_programs))
-
         print(len(set([(program, category) for _, program, category in classified_programs])))
         print(len(set([program for _, program, _ in classified_programs])))
 
         classified_programs = sorted(classified_programs, key=lambda item: (item[0], item[2], item[1]))
-        with codecs.open(TMP_PATH + '/reclassify_programs.txt', 'w') as fw:
+        with codecs.open(TMP_PATH + '/reclassify_programs_1.txt', 'w') as fw:
             fw.write('\n'.join(sorted(unclassify_programs)))
-        with codecs.open(TMP_PATH + '/all_programs_category.txt', 'w') as fw:
+        with codecs.open(TMP_PATH + '/all_programs_category_1.txt', 'w') as fw:
             fw.write('\n'.join(['%s\t\t%s\t\t%s' % (a, c, b) for a, b, c in classified_programs]))
 
         return classified_programs, unclassify_programs
@@ -332,6 +397,4 @@ class Classifyer(object):
 
 if __name__ == '__main__':
     handler = Classifyer()
-    # handler.classify_exist_channels('tmp_result/normalized_channels.txt')
-    # handler.normalize_scrapy_programs()
-    # handler.classify_first()
+    handler.classify_first()

@@ -6,7 +6,7 @@ import psutil
 import shutil
 import multiprocessing
 
-from classify_programs import Classifyer
+from program_first_classifyer import Classifyer
 
 DEBUG = True
 TMP_PATH = os.getcwd() + '/tmp_result'
