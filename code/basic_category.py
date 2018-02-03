@@ -210,5 +210,3 @@ music_keywords = \
 
 military_keywords = \
     '海军|陆军|空军|二战|军事|军情|军旅|军营|军民'
-
-country_keywords = '中国|美国|俄罗斯|伊拉克|印度|日本|朝鲜|中俄|中美'

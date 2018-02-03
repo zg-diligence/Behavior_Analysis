@@ -14,8 +14,8 @@ import os, re, json
 import time, codecs
 from multiprocessing import Pool, Manager
 
+from basic_category import categories
 from program_second_classifyer import Scrapyer, Classifyer
-from basic_category import categories as country_keywords
 from program_third_classifyer import DistanceClassifyer
 
 DEBUG = True
@@ -40,14 +40,32 @@ class ShortProgramClassifer(object):
         :return:
         """
 
+        country_keywords = \
+            '中国|美国|俄罗斯|伊拉克|印度|日本|朝鲜|中俄|' \
+            '中美|英国|俄|美|联合国|叙利亚|外交部|台湾|我国|' \
+            '欧洲|男子|女子|习近平|国务院|国家'
+
+        finance_keywords = '投资|股市|投顾|财富'
+        food_keywords = '饮食|烹饪|美食'
+
         with open(RESULT_PATH + '/reclassify_programs_3.txt', 'r') as fr:
             unclassified_programs = [line.strip() for line in fr.readlines()]
 
         classified_programs = []
         for program in unclassified_programs:
-            if re.search('^%s'%country_keywords, program):
-                if program[:3] != '中国梦':
+            if re.search('^(%s)'% country_keywords, program):
+                if not re.search('中国梦|美俏|美丽', program):
                     classified_programs.append(('post', program, '新闻'))
+
+            if re.search('%s'%finance_keywords, program):
+                classified_programs.append(('post', program, '财经'))
+
+            if re.search('%s'%food_keywords, program):
+                classified_programs.append(('post', program, '美食'))
+
+            res = re.search('^(%s)'%('|'.join(categories)), program)
+            if res:
+                classified_programs.append(('post', program, res.group()))
         return classified_programs
 
     def crawl_short_programs(self, N=4):
@@ -57,7 +75,7 @@ class ShortProgramClassifer(object):
         :return:
         """
 
-        with open(RESULT_PATH + '/reclassify_programs_3.txt', 'r') as fr:
+        with open(RESULT_PATH + '/reclassify_programs_4.txt', 'r') as fr:
             unclassified_programs = [line.strip() for line in fr.readlines()]
 
         # extrct short programs, size of the program between 3 and 6
@@ -68,6 +86,7 @@ class ShortProgramClassifer(object):
             if 2 < len(program) <=6 :
                 short_programs.append(program)
         short_programs = list(set(short_programs))
+        if DEBUG: print(len(short_programs))
 
         global empty_times
         empty_times = dict(zip(short_programs, [0 for _ in range(len(short_programs))]))
@@ -147,7 +166,7 @@ class ShortProgramClassifer(object):
         handler = DistanceClassifyer()
         min_column, min_name, min_href, min_distance = '', '', '', 0
         for column, programs in tmp_programs:
-            items = [classify.preprocess_program(pro) for _, pro in programs]
+            items = [pro for _, pro in programs]
             name, distance = handler.find_min_distance(program, items)
             if distance > min_distance:
                 min_name = name
@@ -190,7 +209,7 @@ class ShortProgramClassifer(object):
                  unclassified: bad matched result, unable to classify
         """
 
-        with codecs.open(TMP_PATH + '/xingchen_collected_programs.txt', 'r') as fr:
+        with codecs.open(TMP_PATH + '/xingchen_collected_short_programs.txt', 'r') as fr:
             enable_results = [json.loads(line.strip()) for line in fr]
 
         recrawl_programs = []
@@ -204,7 +223,7 @@ class ShortProgramClassifer(object):
                     continue
 
                 if res[0] == 3:
-                    classified_programs.append((program, res[1]))
+                    classified_programs.append(('short', program, res[1]))
                     continue
 
                 if res[0] == 4:
@@ -215,7 +234,7 @@ class ShortProgramClassifer(object):
                 if category == '继续':
                     recrawl_programs.append((program, res[1], res[2]))
                 else:
-                    classified_programs.append((program, category))
+                    classified_programs.append(('short', program, category))
         return recrawl_programs, classified_programs, unclassified_programs
 
     def crawl_to_classify_programs(self, deep_crawl_programs, N=6):
@@ -276,10 +295,23 @@ class ShortProgramClassifer(object):
 
 if __name__ == '__main__':
     handler = ShortProgramClassifer()
+
     new_classified = handler.post_processing()
+    print(len(new_classified))
 
     handler.crawl_short_programs()
     res_1 = handler.check_to_classify_programs()
+    print(len(res_1[0]), len(res_1[1]), len(res_1[2]))
+
     new_classified += res_1[1]
     new_classified += handler.crawl_to_classify_programs(res_1[0])
+    new_classified = [(a, b, c) for a, b, c in new_classified if a and b and c]
+
+    with codecs.open(TMP_PATH + '/short_classified_result.txt', 'w') as fw:
+        fw.write('\n'.join(sorted(['\t'.join(item) for item in new_classified])))
+
+    # with open(TMP_PATH + '/short_classified_result.txt', 'r') as fr:
+    #     items = [line.strip() for line in fr.readlines()]
+    #     new_classified += [tuple(item.split('\t')) for item in items]
+
     handler.merge_classify_post(new_classified)

@@ -179,18 +179,20 @@ class Scrapyer(object):
         """
 
         collected_programs = []
-        count, pre = 0, source_programs.qsize()
+        # count, pre = 0, source_programs.qsize()
         while True:
             try:
                 with lock:
                     program = source_programs.get_nowait()
                 if DEBUG: print(source_programs.qsize())
 
-                count += 1
-                if count % 50 == 0 and limit:
-                    if pre - source_programs.qsize() < 0:
-                        return collected_programs, self.enabled_programs, self.unabled_programs
-                pre = source_programs.qsize()
+                if  source_programs.qsize() < 1500:
+                    return collected_programs, self.enabled_programs, self.unabled_programs
+                # count += 1
+                # if count % 50 == 0 and limit:
+                #     if pre - source_programs.qsize() < 0:
+                #         return collected_programs, self.enabled_programs, self.unabled_programs
+                # pre = source_programs.qsize()
 
                 result = self.crawl_relative_program(program, source_programs, lock)
                 if result: collected_programs.append(result)

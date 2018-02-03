@@ -137,22 +137,16 @@ class DistanceClassifyer(object):
 
         return counts, layer_programs
 
-    def classify_by_matched(self, N=4):
+    def classify_by_matched(self,unclassify_programs, classified_programs, N=4):
         """
         classify prorgams by matching classified and unclassify programs
+        :param unclassify_programs
+        :param classified_programs
         :param N: number of process
         :return:
         """
 
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-
-        with open(RESULT_PATH + '/all_programs_category_2.txt', 'r') as fr:
-            items = [line.strip() for line in fr.readlines()]
-            classified_programs = [item.split('\t\t') for item in items]
-            classified_programs = dict([(c, b) for a, b, c in classified_programs])
-
-        with open(RESULT_PATH + '/reclassify_programs_2.txt', 'r') as fr:
-            unclassify_programs = [line.strip() for line in fr.readlines()]
 
         processes = []
         pool = Pool(4)
@@ -170,11 +164,12 @@ class DistanceClassifyer(object):
             for i in range(9):
                 counts[i] += res[0][i]
                 layer_programs[i] += res[1][i]
+
         if DEBUG: print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
         if DEBUG: print(counts, sum(counts))
         for index, items in enumerate(layer_programs):
-            with codecs.open(LAYER_PATH + '/layer_programs_%d.txt' % index, 'w') as fw:
+            with codecs.open(LAYER_PATH + '/dev_layer_programs_%d.txt' % index, 'w') as fw:
                 fw.write('\n'.join(['\t'.join(item) for item in items]))
         return layer_programs
 
@@ -182,6 +177,7 @@ class DistanceClassifyer(object):
         """
         merge new classified programs with before result
         :param similarity_classified:
+        :param result_num:
         :return:
         """
 
@@ -213,35 +209,47 @@ class DistanceClassifyer(object):
         :return:
         """
 
-        with open(TMP_PATH + '/all_programs_category_3.txt', 'r') as fr:
-            items = [line.strip() for line in fr.readlines()]
-            classified_programs = [item.split('\t\t') for item in items]
-            classified_programs = [(a, c, b) for a, b, c in classified_programs]
-        with open(TMP_PATH + '/reclassify_programs_3.txt', 'r') as fr:
-            unclassify_programs = [line.strip() for line in fr.readlines()]
+        # with open(TMP_PATH + '/all_programs_category_3.txt', 'r') as fr:
+        #     items = [line.strip() for line in fr.readlines()]
+        #     classified_programs = [item.split('\t\t') for item in items]
+        #     classified_programs = [(a, c, b) for a, b, c in classified_programs]
+        # with open(TMP_PATH + '/reclassify_programs_3.txt', 'r') as fr:
+        #     unclassify_programs = [line.strip() for line in fr.readlines()]
 
         # do clustering
         # voting with weight
 
 
 if __name__ == '__main__':
+    with open(RESULT_PATH + '/all_programs_category_5.txt', 'r') as fr:
+        items = [line.strip() for line in fr.readlines()]
+        classified_programs = [item.split('\t\t') for item in items]
+        classified_programs = [(c, b) for a, b, c in classified_programs]
+
+    with open(RESULT_PATH + '/reclassify_programs_5.txt', 'r') as fr:
+        unclassify_programs = [line.strip() for line in fr.readlines()]
+
+    tmp_category = ['新闻', '体育', '财经', '军事', '农业',
+                    '纪实', '健康', '时尚', '美食','汽车',
+                    '旅游', '综艺', '生活']
+
+    classified_programs = [(a, b) for a, b in classified_programs if b in tmp_category]
+    classified_programs = dict(classified_programs)
+
     handler = DistanceClassifyer()
-    layer_programs = handler.classify_by_matched()
+    layer_programs = handler.classify_by_matched(unclassify_programs, classified_programs)
+
 
     classified_result = layer_programs[0] + layer_programs[1]
-    classified_similarity = [('1similarity', p, c) for p, _, _, c in classified_result]
-    handler.merge_classify_similarity(classified_similarity, 2)
+    classified_similarity = [('dev_1similarity', p, c) for p, _, _, c in classified_result]
 
-    # classified_result = layer_programs[0] + layer_programs[1]
-    # classified_similarity = [('1similarity', p, c) for p, _, _, c in classified_result]
+    classified_result = layer_programs[2] + layer_programs[3] + layer_programs[4]
+    classified_similarity += [('dev_2similarity', p, c) for p, _, _, c in classified_result]
 
-    # classified_result = layer_programs[2] + layer_programs[3] + layer_programs[4]
-    # classified_similarity += [('2similarity', p, c) for p, _, _, c in classified_result]
+    classified_result = layer_programs[5] + layer_programs[6] + layer_programs[7]
+    classified_similarity += [('dev_3similarity', p, c) for p, _, _, c in classified_result]
 
-    # classified_result = layer_programs[5] + layer_programs[6] + layer_programs[7]
-    # classified_similarity += [('3similarity', p, c) for p, _, _, c in classified_result]
+    classified_result = layer_programs[8]
+    classified_similarity += [('dev_4similarity', p, c) for p, _, _, c in classified_result]
 
-    # classified_result = layer_programs[8]
-    # classified_similarity += [('4similarity', p, c) for p, _, _, c in classified_result]
-
-    # handler.merge_classify_similarity(classified_similarity, 4)
+    handler.merge_classify_similarity(classified_similarity, 5)
