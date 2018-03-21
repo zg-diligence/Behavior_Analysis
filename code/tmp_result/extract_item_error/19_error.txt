@@ -1,13 +1,0 @@
-/media/gzhang/Others/original_data/19/Server04_20160519183155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/19/Server04_20160519183155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/19/Server11_20160519184850.dat|list index out of range|
-
-/media/gzhang/Others/original_data/19/Server11_20160519184850.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/19/Server12_20160519181155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/19/Server12_20160519181155.dat|list index out of range|"E
-
-

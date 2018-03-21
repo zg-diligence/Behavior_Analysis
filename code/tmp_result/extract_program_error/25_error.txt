@@ -1,7 +1,0 @@
-/media/gzhang/Others/original_data/25/Server02_20160525095155.dat|list index out of range|702|5|zmKPcrwgJYqnSiTRM|825010367831980|02076615350072473|2016.05.25 10:18:00|2016.05.25 10:17:56|116|109|443000|坏际覩本地节目G
-
-/media/gzhang/Others/original_data/25/Server09_20160525094855.dat|list index out of range|701|21|zmKPcrwgJYqnSiTRM|825010367831980|02076615350072473|2016.05.25 10:17:56|116|109|443000|坏际覩本地节目G
-
-/media/gzhang/Others/original_data/25/Server11_20160525094850.dat|list index out of range|700|6|zmKPcrwgJYqnSiTRM|825010367831980|02076615350072473|2016.05.25 10:17:56|116|109|443000|坏际覩本地节目G
-
-

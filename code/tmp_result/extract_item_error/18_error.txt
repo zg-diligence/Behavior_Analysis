@@ -1,193 +1,0 @@
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server01_20160518114722.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server02_20160518115155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server02_20160518115155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server02_20160518115155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server02_20160518115155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server02_20160518115155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server02_20160518115155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server02_20160518115155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server02_20160518115155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server03_20160518111654.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server03_20160518111654.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server04_20160518113155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server05_20160518114729.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server05_20160518114729.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server05_20160518114729.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server05_20160518114729.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server05_20160518114729.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server05_20160518114729.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server05_20160518114729.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server05_20160518114729.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server07_20160518104852.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server07_20160518104852.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server07_20160518114852.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server07_20160518114852.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server07_20160518114852.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server07_20160518114852.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server07_20160518114852.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server07_20160518114852.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server07_20160518114852.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server07_20160518114852.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server09_20160518104855.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server09_20160518104855.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server09_20160518114855.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server10_20160518114853.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server10_20160518114853.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server10_20160518114853.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server10_20160518114853.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server11_20160518114850.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server11_20160518114850.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server11_20160518114850.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server11_20160518114850.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server11_20160518114850.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server11_20160518114850.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server11_20160518114850.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server11_20160518114850.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server12_20160518111155.dat|list index out of range|"E
-
-/media/gzhang/Others/original_data/18/Server12_20160518121155.dat|list index out of range|
-
-/media/gzhang/Others/original_data/18/Server12_20160518121155.dat|list index out of range|"E
-
-
