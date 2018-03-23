@@ -4,10 +4,13 @@ import time
 import codecs
 import graphviz as gv
 import multiprocessing
+from matplotlib import pyplot as plt
+from matplotlib import colors as mcolors
 from collections import Counter, deque
 from datetime import datetime, timedelta
 from string import punctuation as env_punc
 from zhon.hanzi import punctuation as chs_punc
+plt.rcParams['font.sans-serif'] = ['FZKai-Z03']
 
 DEBUG = True
 ROOT_PATH = '/media/gzhang/Elements/original_data'
@@ -17,6 +20,14 @@ TMP_PATH = os.path.join(os.getcwd(), 'tmp_result')
 GRAPH_PATH = os.path.join(TMP_PATH, 'user_graph')
 EVENT_PATH = os.path.join(TMP_PATH, 'user_events')
 PATTERN_PATH = os.path.join(TMP_PATH, 'user_pattern')
+PREFER_PATH = os.path.join(TMP_PATH, 'prefer_analysis')
+
+categories = ['电影', '电视剧', '新闻', '体育', '财经',
+              '法制', '军事', '农业', '纪实', '音乐',
+              '戏曲', '少儿', '健康', '时尚', '美食',
+              '汽车', '旅游', '综艺', '科教', '生活',  # life is in the later
+              '亲子', '购物', '电台', '其它']
+
 
 def correct_program_dict(src_path, des_path):
     """
@@ -71,91 +82,82 @@ def correct_program_dict(src_path, des_path):
             for key, value in sorted(prog_dict.items(), key=lambda item: (item[1], item[0])):
                 fw.write(value + '\t\t' + key + '\n')
 
+
 def regex_for_normalize_programs():
-        """
-        regexies for normalizing programs
-        :return: list
-        """
+    """
+    regexies for normalizing programs
+    :return: list
+    """
 
-        regexes = []
-        chs_num = '一二三四五六七八九十'
-        punctuations = env_punc + chs_punc
-        unvisible_chars = ''.join([chr(i) for i in range(32)])
+    regexes = []
+    chs_num = '一二三四五六七八九十'
+    punctuations = env_punc + chs_punc
+    unvisible_chars = ''.join([chr(i) for i in range(32)])
 
-        #  # remove program marks
-        regexes.append(re.compile('.*(报复|反复|回复|修复)$'))
-        regexes.append(re.compile('复$'))
-        regexes.append(re.compile('现场直播|实况录像|免费'))
-        regexes.append(re.compile('(中文版|英文版|回看|复播|重播|[上中下尾]|[ⅡⅢI]+)$'))
-        regexes.append(re.compile('^(HD|3D|杜比)|(SD文广版|文广(遮标)*版|SD|HD|3D|TV|杜比|限免|done|out)$'))
+    #  # remove program marks
+    regexes.append(re.compile('.*(报复|反复|回复|修复)$'))
+    regexes.append(re.compile('复$'))
+    regexes.append(re.compile('现场直播|实况录像|免费'))
+    regexes.append(re.compile('(中文版|英文版|回看|复播|重播|[上中下尾]|[ⅡⅢI]+)$'))
+    regexes.append(re.compile('^(HD|3D|杜比)|(SD文广版|文广(遮标)*版|SD|HD|3D|TV|杜比|限免|done|out)$'))
 
-        # remove date
-        r1 = '(19|20)*[0-9][0-9](年|-)(0[1-9]|10|11|12|[0-9])(月|-)(0[1-9]|[1-2][0-9]|3[0-1]|[0-9])日*'
-        r2 = '(19|20)*[0-9][0-9](年|-)*(0[1-9]|10|11|12)(月|-)*(0[0-9]|[1-2][0-9]|3[0-1])日*\d*'
-        r3 = '(0[1-9]|10|11|12|[1-9])月(0[1-9]|[1-2][0-9]|3[0-1]|[1-9])日'
-        r4 = '(0[1-9]|10|11|12)(0[1-9]|[1-2][0-9]|3[0-1])'
-        r7 = '(19|20)[0-9][0-9]-*\d*'
-        r5 = '(19|20)[0-9][0-9]年'
-        r6 = '(19|20)[0-9][0-9](-|/)(19|20)[0-9][0-9]'
-        regexes.append(re.compile('(%s|%s|%s|%s|%s|%s|%s)' % (r1, r2, r3, r4, r5, r6, r7)))
+    # remove date
+    r1 = '(19|20)*[0-9][0-9](年|-)(0[1-9]|10|11|12|[0-9])(月|-)(0[1-9]|[1-2][0-9]|3[0-1]|[0-9])日*'
+    r2 = '(19|20)*[0-9][0-9](年|-)*(0[1-9]|10|11|12)(月|-)*(0[0-9]|[1-2][0-9]|3[0-1])日*\d*'
+    r3 = '(0[1-9]|10|11|12|[1-9])月(0[1-9]|[1-2][0-9]|3[0-1]|[1-9])日'
+    r4 = '(0[1-9]|10|11|12)(0[1-9]|[1-2][0-9]|3[0-1])'
+    r7 = '(19|20)[0-9][0-9]-*\d*'
+    r5 = '(19|20)[0-9][0-9]年'
+    r6 = '(19|20)[0-9][0-9](-|/)(19|20)[0-9][0-9]'
+    regexes.append(re.compile('(%s|%s|%s|%s|%s|%s|%s)' % (r1, r2, r3, r4, r5, r6, r7)))
 
-        # remove space/punctuations/control chars
-        regexes.append(re.compile('\s'))
-        regexes.append(re.compile('[%s]' % punctuations))
-        regexes.append(re.compile('[%s]' % unvisible_chars))
+    # remove space/punctuations/control chars
+    regexes.append(re.compile('\s'))
+    regexes.append(re.compile('[%s]' % punctuations))
+    regexes.append(re.compile('[%s]' % unvisible_chars))
 
-        # remove serial number
-        regexes.append(re.compile('第*([%s]+|\d+)[期部季集]+' % chs_num))
-        regexes.append(re.compile('(\d+|[%s]+)$' % chs_num))
+    # remove serial number
+    regexes.append(re.compile('第*([%s]+|\d+)[期部季集]+' % chs_num))
+    regexes.append(re.compile('(\d+|[%s]+)$' % chs_num))
 
-        return regexes
+    return regexes
+
 
 def preprocess_program(program):
-        """
-        preprocess of program
-        :param program:
-        :return:
-        """
+    """
+    preprocess of program
+    :param program:
+    :return:
+    """
 
-        chs_num = '一二三四五六七八九十'
-        regexes = regex_for_normalize_programs()
+    chs_num = '一二三四五六七八九十'
+    regexes = regex_for_normalize_programs()
 
-        # remove serial number in the middle of the program name
-        if re.match('^\D+第([%s]+|\d+)[部集季]+.*$' % chs_num, program):
-            res = re.search('第([%s]+|\d+)[部集季]+' % chs_num, program)
-            program = program[:res.span()[0]]
+    # remove serial number in the middle of the program name
+    if re.match('^\D+第([%s]+|\d+)[部集季]+.*$' % chs_num, program):
+        res = re.search('第([%s]+|\d+)[部集季]+' % chs_num, program)
+        program = program[:res.span()[0]]
 
-        for regex in regexes[2:]:
-            program = re.sub(regex, '', program)
-        if not re.match(regexes[0], program):
-            program = re.sub(regexes[1], '', program)
+    for regex in regexes[2:]:
+        program = re.sub(regex, '', program)
+    if not re.match(regexes[0], program):
+        program = re.sub(regexes[1], '', program)
 
-        for regex in regexes[2:]:
-            program = re.sub(regex, '', program)
-        if not re.match(regexes[0], program):
-            program = re.sub(regexes[1], '', program)
+    for regex in regexes[2:]:
+        program = re.sub(regex, '', program)
+    if not re.match(regexes[0], program):
+        program = re.sub(regexes[1], '', program)
 
-        # remove chinese garbled
-        if re.search('[^(\w+\-)]', program):
-            return None
+    # remove chinese garbled
+    if re.search('[^(\w+\-)]', program):
+        return None
 
-        return None if not program else program
+    return None if not program else program
+
 
 class Recognizer(object):
     def __init__(self):
         self.programs_dict = None
-
-    def read_programs_dict(self, file_path):
-        """
-        read the program classification result
-        :param file_path: path of the source file
-        :return:
-        """
-
-        with open(file_path) as fr:
-            cat_progs = [line.strip().split('\t\t') for line in fr.readlines()]
-            prog_cats = [(prog, cat) for cat, prog in cat_progs]
-        self.programs_dict = dict(prog_cats)
 
     def count_usr_num(self, root_catelogue, folder, filenames):
         """
@@ -229,7 +231,7 @@ class Recognizer(object):
         """
 
         folder_path = os.path.join(root_catelogue, folder)
-        filenames = sorted(os.listdir(folder_path), key=lambda item:item[-10:-8])
+        filenames = sorted(os.listdir(folder_path), key=lambda item: item[-10:-8])
         usr_events = dict(zip(usr_ids, [[] for _ in range(len(usr_ids))]))
         for filename in filenames:
             file_path = os.path.join(folder_path, filename)
@@ -259,7 +261,7 @@ class Recognizer(object):
         :return:
         """
 
-        folders = sorted(os.listdir(root_catelogue), key=lambda item: int(item))[26:]
+        folders = sorted(os.listdir(root_catelogue), key=lambda item: int(item))
 
         processes = []
         pool = multiprocessing.Pool(processes_num)
@@ -280,6 +282,54 @@ class Recognizer(object):
                 file_path = os.path.join(folder_path, usr_id)
                 with codecs.open(file_path, mode='w', encoding='utf8') as fw:
                     fw.write('\n'.join(events))
+
+    def adjust_extracted_events(self, root_catelogue, des_catelogue):
+        """
+        adjust order and format of extracted events
+        :param root_catelogue:
+        :param des_catelogue:
+        :return:
+        """
+
+        folders = sorted(os.listdir(root_catelogue), key=lambda item: int(item))
+        for folder in folders:
+            src_folder_path = os.path.join(root_catelogue, folder)
+            des_folder_path = os.path.join(des_catelogue, folder)
+            if not os.path.exists(des_folder_path):
+                os.mkdir(des_folder_path)
+
+            filenames = sorted(os.listdir(src_folder_path))
+            for filename in filenames[:49]:
+                src_file_path = os.path.join(src_folder_path, filename)
+                des_file_path = os.path.join(des_folder_path, filename)
+                with open(src_file_path) as fr:
+                    events = [line.strip() for line in fr.readlines()]
+                    events.sort(key=lambda item: (item.split('|')[2], int(item.split('|')[0])))
+
+                    cycles, cycle = [], events[:1]
+                    if cycle:
+                        pre, cnt = events[0].split('|'), 1
+                        for event in events[1:]:
+                            cur = event.split('|')
+                            if cur[1] == '20': continue  # remove heartbeat event
+                            if cur[2] != pre[2]:
+                                if cycle[0].split('|')[1] == '20': cycle.pop(0)
+                                if len(cycle) >= 3: cycles.append(cycle)
+                                cycle, cnt = [], 0
+                            cycle.append(event)
+                            pre, cnt = cur, cnt + 1
+
+                        # only one cycle in a single file
+                        if cycle[0].split('|')[1] == '20': cycle.pop(0)
+                        if len(cycle) >= 3: cycles.append(cycle)
+
+                    # sorting cycles by time
+                    cycles.sort(key=lambda cycle: datetime.strptime(cycle[0].split('|')[5], '%Y.%m.%d %H:%M:%S'))
+
+                    new_events = ['\n'.join(cycle) for cycle in cycles]
+                    with open(des_file_path, 'w') as fw:
+                        fw.write('\n\n'.join(new_events))
+
 
     def count_edges(self, file_path):
         """
@@ -367,52 +417,32 @@ class Recognizer(object):
             graph.render(pic_path)
             os.system('rm ' + pic_path)
 
-    def adjust_extracted_events(self, root_catelogue, des_catelogue):
+
+    def read_programs_dict(self, file_path):
         """
-        adjust order and format of extracted events
-        :param root_catelogue:
-        :param des_catelogue:
+        read the program classification result
+        :param file_path: path of the source file
         :return:
         """
 
-        folders = sorted(os.listdir(root_catelogue), key=lambda item: int(item))
-        for folder in folders:
-            src_folder_path = os.path.join(root_catelogue, folder)
-            des_folder_path = os.path.join(des_catelogue, folder)
-            if not os.path.exists(des_folder_path):
-                os.mkdir(des_folder_path)
+        with open(file_path) as fr:
+            cat_progs = [line.strip().split('\t\t') for line in fr.readlines()]
+            prog_cats = [(prog, cat) for cat, prog in cat_progs]
+        self.programs_dict = dict(prog_cats)
 
-            filenames = sorted(os.listdir(src_folder_path))
-            for filename in filenames[:49]:
-                src_file_path = os.path.join(src_folder_path, filename)
-                des_file_path = os.path.join(des_folder_path, filename)
-                with open(src_file_path) as fr:
-                    events = [line.strip() for line in fr.readlines()]
-                    events.sort(key=lambda item: (item.split('|')[2], int(item.split('|')[0])))
+    def classify_program(self, program):
+        """
+        classify program by exist programs classification result
+        :param program: un-normalized program
+        :return: category of the program
+        """
 
-                    cycles, cycle = [], events[:1]
-                    if cycle:
-                        pre, cnt = events[0].split('|'), 1
-                        for event in events[1:]:
-                            cur = event.split('|')
-                            if cur[1] == '20': continue # remove heartbeat event
-                            if cur[2] != pre[2]:
-                                if cycle[0].split('|')[1] == '20': cycle.pop(0)
-                                if len(cycle) >= 3: cycles.append(cycle)
-                                cycle, cnt = [], 0
-                            cycle.append(event)
-                            pre, cnt = cur, cnt + 1
-
-                        # only one cycle in a single file
-                        if cycle[0].split('|')[1] == '20': cycle.pop(0)
-                        if len(cycle) >= 3: cycles.append(cycle)
-
-                    # sorting cycles by time
-                    cycles.sort(key=lambda cycle: datetime.strptime(cycle[0].split('|')[5], '%Y.%m.%d %H:%M:%S'))
-
-                    new_events = ['\n'.join(cycle) for cycle in cycles]
-                    with open(des_file_path, 'w') as fw:
-                        fw.write('\n\n'.join(new_events))
+        if re.match('^\d+-.*-.*$', program):
+            return '音乐'
+        else:
+            new_prog = preprocess_program(program)
+            if not self.programs_dict.get(new_prog, 0): return None
+            return self.programs_dict[new_prog]
 
     def handle_stack(self, stack, event_id, threshold):
         """
@@ -436,7 +466,7 @@ class Recognizer(object):
         category = self.classify_program(program)
         category = category if category else '其它'
         pattern = {'17': 'time-shift', '96': 'vod-play', '97': 'time-shift'}[event_id]
-        return pattern, tmp_lst[0][5], tmp_lst[-1][5], str(last_time), category, program
+        return pattern, tmp_lst[0][5], tmp_lst[-1][5], last_time, category, program
 
     def recognize_pattern(self, circle, threshold=timedelta(seconds=30)):
         """
@@ -461,7 +491,7 @@ class Recognizer(object):
                     program = stack[-1][11]
                     category = self.classify_program(program)
                     category = category if category else '其它'
-                    patterns.append(('look-through', stack[-1][6], stack[-1][5], str(last_time), category, program))
+                    patterns.append(('look-through', stack[-1][6], stack[-1][5], last_time, category, program))
                 elif stack[-1][1] == '17':
                     pattern = self.handle_stack(stack, '17', threshold)
                     if pattern: patterns.append(pattern)
@@ -512,27 +542,52 @@ class Recognizer(object):
 
         for usr_id, usr_files in zip(usr_ids, files_by_usr):
             patterns = self.recognize_pattern_by_user(usr_files)
+            cat_time = self.analyze_preference(patterns)
+            self.display_usr_preference(usr_id, cat_time)
             file_path = os.path.join(des_catelogue, usr_id)
             with open(file_path, 'w') as fw:
                 for pattern in patterns:
-                    fw.write(str(pattern) + '\n')
+                    tmp_pat = list(pattern)
+                    tmp_pat[3] = str(pattern[3])
+                    fw.write(str(tmp_pat) + '\n')
 
-    def classify_program(self, program):
+
+    def analyze_preference(self, patterns):
         """
-        classify program by exist programs classification result
-        :param program: un-normalized program
-        :return: category of the program
+        count total time by category
+        :param patterns:
+        :return: list of (category, time) pair
         """
 
-        if re.match('^\d+-.*-.*$', program):
-            return '音乐'
-        else:
-            new_prog = preprocess_program(program)
-            if not self.programs_dict.get(new_prog, 0): return None
-            return self.programs_dict[new_prog]
+        cat_time = dict(zip(categories, [timedelta(seconds=0) for _ in range(len(categories))]))
+        for pattern in patterns:
+            cat_time[pattern[4]] += pattern[3]
+        return sorted(cat_time.items(), key=lambda item: item[1].seconds, reverse=True)
 
-    def analyze_preference(self, root_catelogue):
-        pass
+    def display_usr_preference(self, usr_id, cat_time):
+        """
+        Visualization of user preference
+        :param usr_id:
+        :param cat_time: list of (category, time) pair
+        :return:
+        """
+
+        times = [t.seconds for _, t in cat_time]
+        portion = [t / sum(times) for t in times]
+        prefer_portion = portion[:10] + [1 - sum(portion[:10]), ]  # choose the first 10 categories
+        if DEBUG: print(sum(prefer_portion[:5]), sum(prefer_portion[:10]), prefer_portion)
+
+        labels = [cat for cat, _ in cat_time[:10]] + ['其它', ]
+        colors = dict(mcolors.BASE_COLORS, **mcolors.CSS4_COLORS)
+        colors = sorted([item for item in colors.values() if type(item) != tuple])
+        colors = [colors[1 + i * 13] for i in range(len(labels))]
+
+        plt.figure(figsize=(8, 6))
+        plt.pie(prefer_portion, labels=labels, colors=colors,
+                autopct='%3.1f%%', shadow=False, startangle=90)
+        plt.title(usr_id)
+        plt.axis('equal')
+        plt.savefig(PREFER_PATH + '/' + usr_id + '.png')
 
 
 if __name__ == '__main__':
@@ -546,6 +601,8 @@ if __name__ == '__main__':
         os.mkdir(EVENT_PATH)
     if not os.path.exists(PATTERN_PATH):
         os.mkdir(PATTERN_PATH)
+    if not os.path.exists(PREFER_PATH):
+        os.mkdir(PREFER_PATH)
 
     handler = Recognizer()
     # handler.choose_usrs(ROOT_PATH)
