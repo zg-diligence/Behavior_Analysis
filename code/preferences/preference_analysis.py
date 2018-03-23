@@ -1,3 +1,16 @@
+"""
+  Copyright(c) 2018 Gang Zhang
+  All rights reserved.
+  Author:Gang Zhang
+  Date:2018.03.23
+
+  Function:
+    1.recognize user behavior patterns
+
+    2.analyze user preference
+"""
+
+
 import os
 import re
 import time
