@@ -117,7 +117,7 @@ class ProgramRatings(object):
         new_prog = preprocess_program(program)
         return new_prog
 
-    def compute_seconds(self, channel_path, threshold):
+    def count_seconds(self, channel_path, threshold):
         """
         counting time for programs in one channel
         :param channel_path: folder path of the day for one channel
@@ -148,7 +148,7 @@ class ProgramRatings(object):
                         continue
         return prog_times
 
-    def compute_for_day(self, catelogue, day, threshold=15):
+    def count_for_day(self, catelogue, day, threshold=15):
         """
         count watching time for one day
         :param catelogue: root catelogue of source data
@@ -163,7 +163,7 @@ class ProgramRatings(object):
         processes = []
         pool = multiprocessing.Pool(4)
         for folder in channel_folders:
-            processes.append(pool.apply_async(self.compute_seconds, (folder, threshold)))
+            processes.append(pool.apply_async(self.count_seconds, (folder, threshold)))
         pool.close()
         pool.join()
 
@@ -256,7 +256,7 @@ class ProgramRatings(object):
 
 if __name__ == '__main__':
     handler = ProgramRatings()
-    handler.compute_for_day(EXTRACT_PATH, '02')
+    handler.count_for_day(EXTRACT_PATH, '02')
     handler.generate_prog_cloud(TMP_PATH + '/prog_times_02.txt')
 
     with open(TMP_PATH + '/nprograms_dict.txt') as fr:

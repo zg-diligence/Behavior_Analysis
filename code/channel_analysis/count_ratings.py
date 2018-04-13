@@ -6,8 +6,9 @@
   Last Modified: 2018.4.13
 
   Function:
+    15个央视频道 and 31个卫视频道
     Count ratings by hour (24 * 28) for all channels
-    statistics result is saved 28 lines for 28 days, 24 items one line for 24 hours seperated by |
+    statistics result is saved by 28 lines for 28 days, 24 items one line for 24 hours seperated by |
 """
 
 import os
@@ -104,8 +105,7 @@ class CountRatings(object):
             if not os.path.exists(folder_path):
                 os.mkdir(folder_path)
 
-        # all_folders = sorted(os.listdir(src_catelogue))
-        all_folders = ['01', '09', '17', '18', '19', '30', '31']
+        all_folders = sorted(os.listdir(src_catelogue))
         pool = multiprocessing.Pool(process_num)
         for folder in all_folders:
             folder_path = os.path.join(src_catelogue, folder)
@@ -114,6 +114,12 @@ class CountRatings(object):
         pool.join()
 
     def count_number(self, folder_path):
+        """
+        count all user ids for one day
+        :param folder_path: folder path of source data for the day
+        :return: dict of user ids, value is 1
+        """
+
         if DEBUG: print(folder_path)
         all_files = os.listdir(folder_path)
         users = {}
@@ -130,6 +136,12 @@ class CountRatings(object):
         return users
 
     def count_total_number(self, catelogue):
+        """
+        count all user ids
+        :param catelogue: root catelogue of source data
+        :return: none
+        """
+
         processes = []
         pool = multiprocessing.Pool(4)
         folders = os.listdir(catelogue)
