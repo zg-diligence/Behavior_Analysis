@@ -143,7 +143,7 @@ class CountRatings(object):
             all_users += list(p.get().keys())
         all_users = set(all_users)
         if DEBUG: print(len(all_users))
-        with open('keywords.txt', 'w') as fw:
+        with open(TMP_PATH + '/keywords.txt', 'w') as fw:
             fw.write('\n'.join(all_users))
 
     def update_ratings(self, TV_tts, start_tt, end_tt):
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     if not os.path.exists(EXTRACT_PATH):
         os.mkdir(EXTRACT_PATH)
 
-    with open('channels.txt') as fr:
+    with open(TMP_PATH + '/channels.txt') as fr:
         items = fr.read().strip().split('\n')
         channel_dict = dict([item.split(' ') for item in items])
 
