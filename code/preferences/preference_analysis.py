@@ -5,11 +5,10 @@
   Date:2018.03.23
 
   Function:
+    total 49 users
     1.recognize user behavior patterns
-
     2.analyze user preference
 """
-
 
 import os
 import re
@@ -23,15 +22,16 @@ from collections import Counter, deque
 from datetime import datetime, timedelta
 from string import punctuation as env_punc
 from zhon.hanzi import punctuation as chs_punc
+
 plt.rcParams['font.sans-serif'] = ['FZKai-Z03']
 
 DEBUG = True
 ROOT_PATH = '/media/gzhang/Elements/original_data'
 EXTRACT_PATH = '/media/gzhang/Data/user_data'
+EVENT_PATH = '/media/gzhang/Data/user_events'
 
 TMP_PATH = os.path.join(os.getcwd(), 'tmp_result')
 GRAPH_PATH = os.path.join(TMP_PATH, 'user_graph')
-EVENT_PATH = os.path.join(TMP_PATH, 'user_events')
 PATTERN_PATH = os.path.join(TMP_PATH, 'user_pattern')
 PREFER_PATH = os.path.join(TMP_PATH, 'prefer_analysis')
 
@@ -172,9 +172,10 @@ class Recognizer(object):
     def __init__(self):
         self.programs_dict = None
 
+    # choose users
     def count_usr_num(self, root_catelogue, folder, filenames):
         """
-        count user appearance in a single folder
+        count users appear in a single folder
         :param root_catelogue: root catelogue of the source data
         :param folder: the given folder name
         :param filenames: name of the files in the folder
@@ -234,6 +235,7 @@ class Recognizer(object):
             for item in choosed_usrs: print(item)
             print(len(user_ids.keys()))
 
+    # extract events
     def extract_usr_events(self, root_catelogue, usr_ids, folder):
         """
         extract target user events in one folder
@@ -343,7 +345,7 @@ class Recognizer(object):
                     with open(des_file_path, 'w') as fw:
                         fw.write('\n\n'.join(new_events))
 
-
+    # visualize event relationship using directed graph
     def count_edges(self, file_path):
         """
         count edges in a single file by cycle
@@ -430,7 +432,7 @@ class Recognizer(object):
             graph.render(pic_path)
             os.system('rm ' + pic_path)
 
-
+    # classify one program
     def read_programs_dict(self, file_path):
         """
         read the program classification result
@@ -457,6 +459,7 @@ class Recognizer(object):
             if not self.programs_dict.get(new_prog, 0): return None
             return self.programs_dict[new_prog]
 
+    # recognize user patterns and visualize user preference
     def handle_stack(self, stack, event_id, threshold):
         """
         extract behaviors 17/96/97
@@ -564,7 +567,6 @@ class Recognizer(object):
                     tmp_pat[3] = str(pattern[3])
                     fw.write(str(tmp_pat) + '\n')
 
-
     def analyze_preference(self, patterns):
         """
         count total time by category
@@ -603,9 +605,8 @@ class Recognizer(object):
         plt.savefig(PREFER_PATH + '/' + usr_id + '.png')
 
 
-if __name__ == '__main__':
+def run_recognize_patterns():
     if DEBUG: print(time.strftime("%Y-%m-%d %X", time.localtime()))
-
     if not os.path.exists(EXTRACT_PATH):
         os.mkdir(EXTRACT_PATH)
     if not os.path.exists(GRAPH_PATH):
@@ -621,13 +622,16 @@ if __name__ == '__main__':
     # handler.choose_usrs(ROOT_PATH)
     usr_ids = sorted([line.strip() for line in open(TMP_PATH + '/choosed_usrs.txt')])
 
-    # handler.extract_all_usr_events(ROOT_PATH, EXTRACT_PATH, usr_ids, processes_num=4)
-    # handler.adjust_extracted_events(EXTRACT_PATH, EVENT_PATH)
+    handler.extract_all_usr_events(ROOT_PATH, EXTRACT_PATH, usr_ids, processes_num=4)
+    handler.adjust_extracted_events(EXTRACT_PATH, EVENT_PATH)
 
-    # usr_edges = handler.count_all_edges(EVENT_PATH, usr_ids, days=28)
-    # handler.display_usr_graphs(usr_edges, limit=1500)
+    usr_edges = handler.count_all_edges(EVENT_PATH, usr_ids, days=28)
+    handler.display_usr_graphs(usr_edges, limit=1500)  # adjust limit value to get different result
 
     handler.read_programs_dict(TMP_PATH + '/nprograms_dict.txt')
     handler.recognize_pattern_all_usrs(EVENT_PATH, PATTERN_PATH, usr_ids)
-
     if DEBUG: print(time.strftime("%Y-%m-%d %X", time.localtime()))
+
+
+if __name__ == '__main__':
+    run_recognize_patterns()
