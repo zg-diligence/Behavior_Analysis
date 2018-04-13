@@ -3,5 +3,3 @@ files/*
 *.zip
 *.log
 __pycache__/*
-user_events/*
-user_graph/*
