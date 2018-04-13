@@ -3,10 +3,11 @@
   All rights reserved.
   Author: Gang Zhang
   Creation Date: 2018.4.6
-  Last Modified: 2018.4.12
+  Last Modified: 2018.4.13
 
   Function:
-    Compute ratings by hour for all channels
+    Count ratings by hour (24 * 28) for all channels
+    statistics result is saved 28 lines for 28 days, 24 items one line for 24 hours seperated by |
 """
 
 import os
@@ -143,7 +144,7 @@ class CountRatings(object):
             all_users += list(p.get().keys())
         all_users = set(all_users)
         if DEBUG: print(len(all_users))
-        with open(TMP_PATH + '/keywords.txt', 'w') as fw:
+        with open(TMP_PATH + '/user_ids.txt', 'w') as fw:
             fw.write('\n'.join(all_users))
 
     def update_ratings(self, TV_tts, start_tt, end_tt):

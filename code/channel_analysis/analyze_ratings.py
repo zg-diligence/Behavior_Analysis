@@ -3,10 +3,23 @@
   All rights reserved.
   Author: Gang Zhang
   Creation Date: 2018.4.11
-  Last Modified: 2018.4.12
+  Last Modified: 2018.4.13
 
   Function:
     Visualize all rating statistics
+
+    rating_analyze_pic_1:
+        卫视top5单日月平均收视率变化曲线
+        央视top5单日月平均收视率变化曲线
+        总体top10单日月平均收视率变化曲线
+        top10单日最高收视率对比
+        单个频道单日月平均收视率变化曲线图
+
+    rating_analyze_pic_1: (5.6 - 5.19)
+        总体top5连续两周收视率变化曲线
+        卫视top5连续两周收视率变化曲线
+        央视top5连续两周收视率变化曲线
+        单个频道连续两周收视率变化曲线
 """
 
 import os

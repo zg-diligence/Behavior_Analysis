@@ -250,17 +250,18 @@ class ProgramRatings(object):
         plt.pie(prefer_proportion, labels=labels, colors=colors,
                 autopct='%4.1f%%', shadow=False, startangle=90)
         plt.axis('equal')
-        plt.savefig(TMP_PATH + '/prefer_category.jpg', format='jpg', dpi=600)
+        day = prog_times_path[-6:-4]
+        plt.savefig(TMP_PATH + '/prefer_category_' + day + '.jpg', format='jpg', dpi=600)
 
 
 if __name__ == '__main__':
     handler = ProgramRatings()
-    handler.compute_for_day(EXTRACT_PATH, '01')
-    handler.generate_prog_cloud(TMP_PATH + '/prog_times_01.txt')
+    handler.compute_for_day(EXTRACT_PATH, '02')
+    handler.generate_prog_cloud(TMP_PATH + '/prog_times_02.txt')
 
     with open(TMP_PATH + '/nprograms_dict.txt') as fr:
         cate_prog = [line.strip().split('\t\t') for line in fr]
         prog_cate = [(item[1], item[0]) for item in cate_prog]
         prog_dict = dict(prog_cate)
     prog_dict['音乐'] = '音乐'
-    handler.show_classification_ratings(TMP_PATH + '/prog_times_01.txt', prog_dict)
+    handler.show_classification_ratings(TMP_PATH + '/prog_times_02.txt', prog_dict)
