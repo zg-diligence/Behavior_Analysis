@@ -300,7 +300,7 @@ class Recognizer(object):
 
     def adjust_extracted_events(self, root_catelogue, des_catelogue):
         """
-        adjust order and format of extracted events
+        ciycles separated by empty line and sort cycles by time
         :param root_catelogue:
         :param des_catelogue:
         :return:
