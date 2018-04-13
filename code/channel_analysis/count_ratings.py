@@ -6,7 +6,7 @@
   Last Modified: 2018.4.13
 
   Function:
-    15个央视频道 and 31个卫视频道
+    15个央视频道 and 32个卫视频道
     Count ratings by hour (24 * 28) for all channels
     statistics result is saved by 28 lines for 28 days, 24 items one line for 24 hours seperated by |
 """
